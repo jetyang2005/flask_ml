@@ -16,11 +16,11 @@ class Elasticsearch_Util():
 
     def __init__(self):
 
-        # 日志基本配置，将日志文件输出到当前目录下的elastticsearch_sample.log文件中
+        # 日志基本配置，将日志文件输出到当前目录下的elastticsearch.log文件中
         logging.basicConfig(level=logging.DEBUG,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
-                filename='log/elastticsearch_sample.log',
+                filename=config.ELASTICSEARCH_LOG_DIR,
                 filemode='w')
 
         # 将日志打印在屏幕上
