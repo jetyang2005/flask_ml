@@ -1,7 +1,13 @@
 1、安装conda虚拟管理环境
 
 2、安装相关类库
-pip install -r requirements.txt
+
+conda config --add channels conda-forge
+while read requirement; do conda install --yes $requirement; done < requirements.txt
+
+
+pip install elasticsearch==5.2.0
+pip install pandasticsearch
 
 
 3、配置elasticsearch、mysql数据库、Kafka等基础环境信息，配置位置如下：
