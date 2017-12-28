@@ -19,7 +19,7 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
 
 # 导入数据
-filename = 'iris.data.csv'
+filename = 'data/iris.data.csv'
 names = ['separ-length', 'separ-width', 'petal-length', 'petal-width', 'class']
 dataset = read_csv(filename, names=names)
 
