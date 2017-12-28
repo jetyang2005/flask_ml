@@ -1,0 +1,11 @@
+1、安装conda虚拟管理环境
+
+2、安装相关类库
+pip install -r requirements.txt
+
+
+3、配置elasticsearch、mysql数据库、Kafka等基础环境信息，配置位置如下：
+linkdata_api_py/app/config.py
+
+4、运行环境
+python run.py
