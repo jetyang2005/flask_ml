@@ -84,7 +84,8 @@ def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=
         results.append(cv_results)
         print('%s: %f (%f)' %(key, cv_results.mean(), cv_results.std()))
     return models, results
-# checkAlgorithm(dataset, 4, 0.2)
+
+# compareAlgorithm(dataset, 4, 0.2)
 
 
 def compareAlgorithm_Pipelines(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
@@ -113,6 +114,8 @@ def compareAlgorithm_Pipelines(dataset, classPosition, validationSizeRatio=0.2, 
 
     return pipelines, results
 
+# compareAlgorithm_Pipelines(dataset, 4, 0.2)
+
 def compareAlgorithm_Ensemble(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
     # 分离数据集
     array = dataset.values
@@ -137,6 +140,9 @@ def compareAlgorithm_Ensemble(dataset, classPosition, validationSizeRatio=0.2, n
         results.append(cv_result)
         print('%s: %f (%f)' % (key, cv_result.mean(), cv_result.std()))
     return ensembles, results
+
+
+# compareAlgorithm_Ensemble(dataset, 4, 0.2)
 
 def compareAlgorithm_BoxLine(models, results):
     # 箱线图比较算法
@@ -179,7 +185,7 @@ def optimizeAlgorithm_KNN(dataset, classPosition, validationSizeRatio=0.2, num_f
 # optimizeAlgorithm_KNN(dataset, 4)
 
 # 调参改进算法 - SVM
-def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
+def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
 
     # 分离数据集
     array = dataset.values
@@ -206,7 +212,7 @@ def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_f
     for mean, std, param in cv_results:
         print('%f (%f) with %r' % (mean, std, param))
 
-# optimizeAlgorithm_SVM(dataset, 4)
+optimizeAlgorithm_SVM(dataset, 4)
 
 # 调参改进算法 - SVM
 def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
@@ -244,7 +250,7 @@ def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7):
     # 模型最终化
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train)
-    model = SVC(C=1.5, kernel='rbf')
+    model = SVC(C=0.8, kernel='linear')
     model.fit(X=rescaledX, y=Y_train)
 
     # 评估模型
