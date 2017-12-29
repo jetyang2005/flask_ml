@@ -33,6 +33,7 @@ names = ['CRIM', 'ZN', 'INDUS', 'CHAS', 'NOX', 'RM', 'AGE', 'DIS',
          'RAD', 'TAX', 'PRTATIO', 'B', 'LSTAT', 'MEDV']
 dataset = read_csv(filename, names=names, delim_whitespace=True)
 
+# 通过表格方式显示数据基本信息
 def showInfo(dataset):
     # 数据维度
     print(dataset.shape)
@@ -53,8 +54,8 @@ def showInfo(dataset):
     print(dataset.corr(method='pearson'))
 
 
-# showInfo(dataset)
 
+# 通过直方图、密度图、箱线图和散点矩阵度对数据有个全方位的了解
 def showGraph(dataset):
 
     # 直方图
@@ -85,8 +86,8 @@ def showGraph(dataset):
     ax.set_yticklabels(names)
     pyplot.show()
 
-# showGraph(dataset)
 
+# 算法比较
 def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
     # 分离数据集
     array = dataset.values
@@ -96,9 +97,6 @@ def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=
 
     X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=seed)
 
-    # 评估算法 - 评估标准
-
-
     # 评估算法 - baseline
     models = {}
     models['LR'] = LinearRegression()
@@ -107,6 +105,7 @@ def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=
     models['KNN'] = KNeighborsRegressor()
     models['CART'] = DecisionTreeRegressor()
     models['SVM'] = SVR()
+
     # 评估算法
     results = []
     for key in models:
@@ -262,4 +261,26 @@ def optimizeAlgorithm_ExtraTrees(dataset, classPosition, validationSizeRatio=0.2
 
     print('最优：%s 使用%s' % (grid_result.best_score_, grid_result.best_params_))
 
-optimizeAlgorithm_ExtraTrees(dataset, 13, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error')
+# optimizeAlgorithm_ExtraTrees(dataset, 13, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error')
+
+def algorithm_ExtraTrees(dataset, classPosition, validationSizeRatio=0.2, seed=7):
+
+    # 分离数据集
+    array = dataset.values
+    X = array[:, 0:classPosition]
+    Y = array[:, classPosition]
+    validation_size = validationSizeRatio
+    X_train, X_validation, Y_train, Y_validation = \
+        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+
+    # 训练模型
+    scaler = StandardScaler().fit(X_train)
+    rescaledX = scaler.transform(X_train)
+    gbr = ExtraTreesRegressor(n_estimators=80)
+    gbr.fit(X=rescaledX, y=Y_train)
+    # 评估算法模型
+    rescaledX_validation = scaler.transform(X_validation)
+    predictions = gbr.predict(rescaledX_validation)
+    print(mean_squared_error(Y_validation, predictions))
+
+algorithm_ExtraTrees(dataset, 13)

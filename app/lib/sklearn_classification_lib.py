@@ -24,6 +24,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
+
 # 导入数据
 filename = 'data/iris.data.csv'
 names = ['separ-length', 'separ-width', 'petal-length', 'petal-width', 'class']
@@ -175,7 +176,7 @@ def optimizeAlgorithm_KNN(dataset, classPosition, validationSizeRatio=0.2, num_f
     for mean, std, param in cv_results:
         print('%f (%f) with %r' % (mean, std, param))
 
-optimizeAlgorithm_KNN(dataset, 4)
+# optimizeAlgorithm_KNN(dataset, 4)
 
 # 调参改进算法 - SVM
 def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
@@ -229,3 +230,28 @@ def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRat
 
 
 # optimizeAlgorithm_GradientBoosting(dataset, 4)
+
+def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7):
+
+    # 分离数据集
+    array = dataset.values
+    X = array[:, 0:classPosition]
+    Y = array[:, classPosition]
+    validation_size = validationSizeRatio
+    X_train, X_validation, Y_train, Y_validation = \
+        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+
+    # 模型最终化
+    scaler = StandardScaler().fit(X_train)
+    rescaledX = scaler.transform(X_train)
+    model = SVC(C=1.5, kernel='rbf')
+    model.fit(X=rescaledX, y=Y_train)
+
+    # 评估模型
+    rescaled_validationX = scaler.transform(X_validation)
+    predictions = model.predict(rescaled_validationX)
+    print(accuracy_score(Y_validation, predictions))
+    print(confusion_matrix(Y_validation, predictions))
+    print(classification_report(Y_validation, predictions))
+
+algorithm_SVM(dataset, 4)
