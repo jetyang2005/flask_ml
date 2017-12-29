@@ -3,8 +3,8 @@
 
 import csv
 import json
-
-
+from numpy import loadtxt
+from pandas import read_csv
 
 
 class CSVUitl(object):
@@ -38,12 +38,23 @@ class CSVUitl(object):
         # kafka_util.colse_producer()
 
 
-    def readCSVFile(self, file_path):
+    def loadData(self, file_path):
         with open(file_path) as f:
             reader = csv.reader(f)
             for row in reader:
                 # Max TemperatureF是表第一行的某个数据，作为key
                 print(row)
 
-# csv_util = CSVUitl()
-# csv_util.dictReadCSVFile('/Users/yangwm/log/exceldata/On_Time_On_Time_Performance_1987_10/On_Time_On_Time_Performance_1987_10.csv')
+
+    def loadDataWithNumPy(self, file_name):
+        with open(file_name,'rt') as raw_data:
+            data = loadtxt(raw_data, delimiter=',')
+            print(data.shape)
+
+    def loadDataWithPandas(self, file_name):
+        names = ['preg', 'plas', 'pres', 'skin', 'test', 'mass', 'pedi', 'age', 'class']
+        data = read_csv(file_name, names=names)
+        print(data.shape)
+
+csv_util = CSVUitl()
+csv_util.loadDataWithPandas('data/pima_data.csv')
