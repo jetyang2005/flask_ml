@@ -26,10 +26,11 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
 
 # 导入数据
-filename = 'data/iris.data.csv'
-names = ['separ-length', 'separ-width', 'petal-length', 'petal-width', 'class']
-dataset = read_csv(filename, names=names)
+# filename = 'data/iris.data.csv'
+# names = ['separ-length', 'separ-width', 'petal-length', 'petal-width', 'class']
+# dataset = read_csv(filename, names=names)
 
+# showInfo(dataset)
 def showInfo(dataset):
     #显示数据维度
     print('数据维度: 行 %s，列 %s' % dataset.shape)
@@ -40,8 +41,8 @@ def showInfo(dataset):
     # 分类分布情况
     print(dataset.groupby('class').size())
 
-# showInfo(dataset)
 
+# showGraph(dataset)
 def showGraph(dataset):
     # 箱线图
     dataset.plot(kind='box', subplots=True, layout=(2,2), sharex=False, sharey=False)
@@ -55,19 +56,20 @@ def showGraph(dataset):
     scatter_matrix(dataset)
     pyplot.show()
 
-# showGraph(dataset)
 
-def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
+# 算法审查，数据集分为两个参数，其中训练数据集和测试数据集是和在一起的
+def compareAlgorithm(X, Y, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
     # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
     validation_size = validationSizeRatio
 
     X_train, X_validation, Y_train, Y_validation = \
         train_test_split(X, Y, test_size=validation_size, random_state=seed)
 
-    # 算法审查
+    compareAlgorithm_SplitParam(X_train, Y_train, X_validation, Y_validation, num_folds=num_folds, seed=seed, scoring=scoring)
+
+# 算法审查，数据集分为四个参数，其中训练数据集合测试数据集已经分开
+def compareAlgorithm_SplitParam(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
+
     models = {}
     models['LR'] = LogisticRegression()
     models['LDA'] = LinearDiscriminantAnalysis()
@@ -86,17 +88,18 @@ def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=
     return models, results
 
 # compareAlgorithm(dataset, 4, 0.2)
-
-
-def compareAlgorithm_Pipelines(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
+def compareAlgorithm_Pipelines(X, Y,  validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
     # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
     validation_size = validationSizeRatio
 
     X_train, X_validation, Y_train, Y_validation = \
         train_test_split(X, Y, test_size=validation_size, random_state=seed)
+
+    compareAlgorithm_Pipelines_SplitParam(X_train, Y_train, X_validation, Y_validation, num_folds=num_folds, seed=seed, scoring=scoring)
+
+
+def compareAlgorithm_Pipelines_SplitParam(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
+
     # 评估算法 - 正态化数据
     pipelines = {}
     pipelines['ScalerLR'] = Pipeline([('Scaler', StandardScaler()), ('LR', LogisticRegression())])
@@ -212,7 +215,7 @@ def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_f
     for mean, std, param in cv_results:
         print('%f (%f) with %r' % (mean, std, param))
 
-optimizeAlgorithm_SVM(dataset, 4)
+# optimizeAlgorithm_SVM(dataset, 4)
 
 # 调参改进算法 - SVM
 def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
@@ -237,7 +240,7 @@ def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRat
 
 # optimizeAlgorithm_GradientBoosting(dataset, 4)
 
-def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7):
+def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7, c_value=0.8, kernel_value='linear'):
 
     # 分离数据集
     array = dataset.values
@@ -250,7 +253,7 @@ def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7):
     # 模型最终化
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train)
-    model = SVC(C=0.8, kernel='linear')
+    model = SVC(C=c_value, kernel=kernel_value)
     model.fit(X=rescaledX, y=Y_train)
 
     # 评估模型
@@ -260,4 +263,4 @@ def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7):
     print(confusion_matrix(Y_validation, predictions))
     print(classification_report(Y_validation, predictions))
 
-algorithm_SVM(dataset, 4)
+# algorithm_SVM(dataset, 4)
