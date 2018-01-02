@@ -1,5 +1,12 @@
 1、安装conda虚拟管理环境
 
+1）conda镜像安装
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/main/
+conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
+conda config --set show_channel_urls yes
+
+conda install xgboost #安装过程较慢，需要多次尝试才能安装成功
+
 2、安装相关类库
 
 conda config --add channels conda-forge
@@ -20,3 +27,8 @@ python run.py
 
 condata install nltk
 python -m nltk.downloader all # 下载数据集
+
+
+
+
+
