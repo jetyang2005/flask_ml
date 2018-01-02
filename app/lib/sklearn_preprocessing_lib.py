@@ -13,12 +13,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 
 
-# text1 = "Natural language processing (NLP) is a field of computer science, artificial intelligence and computational linguistics concerned with the interactions between computers and human (natural) languages, and, in particular, concerned with programming computers to fruitfully process large natural language corpora. Challenges in natural language processing frequently involve natural language understanding, natural language generation (frequently from formal, machine-readable logical forms), connecting language and machine perception, managing human-computer dialog systems, or some combination thereof."
-#
-# text2 = "The Georgetown experiment in 1954 involved fully automatic translation of more than sixty Russian sentences into English. The authors claimed that within three or five years, machine translation would be a solved problem.[2] However, real progress was much slower, and after the ALPAC report in 1966, which found that ten-year-long research had failed to fulfill the expectations, funding for machine translation was dramatically reduced. Little further research in machine translation was conducted until the late 1980s, when the first statistical machine translation systems were developed."
-#
-# text3 = "During the 1970s, many programmers began to write conceptual ontologies, which structured real-world information into computer-understandable data. Examples are MARGIE (Schank, 1975), SAM (Cullingford, 1978), PAM (Wilensky, 1978), TaleSpin (Meehan, 1976), QUALM (Lehnert, 1977), Politics (Carbonell, 1979), and Plot Units (Lehnert 1981). During this time, many chatterbots were written including PARRY, Racter, and Jabberwacky"
-
+# 最小化，去标点符号，分词
 def get_tokens(text):
     lowers = text.lower()
     # remove the punctuation using the character deletion step of translate
@@ -27,10 +22,7 @@ def get_tokens(text):
     tokens = nltk.word_tokenize(no_punctuation)
     return tokens
 
-# 去掉标点符号
-# tokens = get_tokens(text2)
-# count = Counter(tokens)
-# print (count.most_common(10))
+
 
 def stem_tokens(tokens, stemmer):
     stemmed = []
@@ -38,6 +30,7 @@ def stem_tokens(tokens, stemmer):
         stemmed.append(stemmer.stem(item))
     return stemmed
 
+# 分词，去除标点符号，提取词干
 def tokenize(text):
     tokens = nltk.word_tokenize(text)
     tokens = [i for i in tokens if i not in string.punctuation]
@@ -45,15 +38,8 @@ def tokenize(text):
     stems = stem_tokens(tokens, stemmer)
     return stems
 
-#完成了去停用词
-# tokens = get_tokens(text2)
-# filtered = [w for w in tokens if not w in stopwords.words('english')]
-# count = Counter(filtered)
-# print (count.most_common(10))
 
-
-
-# 词干提取（Stemming）
+# 分词，词干提取（Stemming），Counter类的目的是用来跟踪值出现的次数。它是一个无序的容器类型，以字典的键值对形式存储，其中元素作为key，其计数作为value。计数值可以是任意的Interger（包括0和负数）。Counter类和其他语言的bags或multisets很相似。
 def count_term(text):
     tokens = get_tokens(text)
     filtered = [w for w in tokens if not w in stopwords.words('english')]
@@ -66,7 +52,6 @@ def count_term(text):
 def tf(word, count):
     #print ('count is %d, containg is %d' % (count[word], sum(count.values())))
     return float(count[word]) / sum(count.values())
-
 
 def n_containing(word, count_list):
     # print word
@@ -92,37 +77,9 @@ def tfidf(word, count, count_list):
     #print ('tf is :%d, idf is :%d' %(tf(word, count), idf(word, count_list)))
     return tfidf_value
 
-# print n_containing('python',countlist)
-# enumerate()是python的内置函数,enumerate在字典上是枚举、列举的意思,
-# 对于一个可迭代的（iterable）/可遍历的对象（如列表、字符串），enumerate将其组成一个索引序列，利用它可以同时获得索引和值
-# enumerate多用于在for循环中得到计数
-# texts = [text1, text2, text3]
-#
-# countlist = []
-# for text in texts:
-#     countlist.append(count_term(text))
-
-
-# print idf('machin', countlist)
-
-# for i, count in enumerate(countlist):
-#     print count
-#     print("Top words in document {}".format(i + 1))
-#     scores = {word: tfidf(word, count, countlist) for word in count}
-#     sorted_words = sorted(scores.items(), key=lambda x: x[1], reverse=True)
-#     for word, score in sorted_words[:5]:
-#         print("\tWord: {}, TF-IDF: {}".format(word, round(score, 5)))
-
-
-
-# 语料
-# corpus = [
-#     "Natural language processing (NLP) is a field of computer science, artificial intelligence and computational linguistics concerned with the interactions between computers and human (natural) languages, and, in particular, concerned with programming computers to fruitfully process large natural language corpora. Challenges in natural language processing frequently involve natural language understanding, natural language generation (frequently from formal, machine-readable logical forms), connecting language and machine perception, managing human-computer dialog systems, or some combination thereof.",
-#     "The Georgetown experiment in 1954 involved fully automatic translation of more than sixty Russian sentences into English. The authors claimed that within three or five years, machine translation would be a solved problem.[2] However, real progress was much slower, and after the ALPAC report in 1966, which found that ten-year-long research had failed to fulfill the expectations, funding for machine translation was dramatically reduced. Little further research in machine translation was conducted until the late 1980s, when the first statistical machine translation systems were developed.",
-#      "During the 1970s, many programmers began to write conceptual ontologies, which structured real-world information into computer-understandable data. Examples are MARGIE (Schank, 1975), SAM (Cullingford, 1978), PAM (Wilensky, 1978), TaleSpin (Meehan, 1976), QUALM (Lehnert, 1977), Politics (Carbonell, 1979), and Plot Units (Lehnert 1981). During this time, many chatterbots were written including PARRY, Racter, and Jabberwacky"]
-
+# 将文本中的词语转换为词频矩阵
 def count_vectorizer(textArray):
-    # 将文本中的词语转换为词频矩阵
+
     vectorizer = CountVectorizer(stop_words='english', decode_error='ignore')
     # 计算个词语出现的次数
     X = vectorizer.fit_transform(textArray)
@@ -133,9 +90,9 @@ def count_vectorizer(textArray):
     print X.toarray()
     return X.toarray()
 
-
+# 计算TF-IDF
 def tfidf_vectorizer(textArray):
-    # 计算TF-IDF
+
     tf_transformer = TfidfVectorizer(tokenizer=tokenize,  stop_words='english', decode_error='ignore')
     X_train_counts_tf = tf_transformer.fit_transform(textArray)
     tfidfword = tf_transformer.get_feature_names()
@@ -144,4 +101,4 @@ def tfidf_vectorizer(textArray):
     # print X_train_counts_tf.toarray()
     return X_train_counts_tf.toarray()
 
-# tfidf_vectorizer(corpus)
+
