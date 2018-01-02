@@ -74,8 +74,8 @@ def readData(filename):
 
     return feature_datas, labelValues
 
-train_filename = 'data/email2/train_data2.txt'
-test_filename = 'data/email2/test_data2.txt'
+train_filename = '../lib/data/email2/train_data2.txt'
+test_filename = '../lib/data/email2/test_data2.txt'
 
 train_datas , train_class = readData(train_filename)
 test_datas, test_class = readData(test_filename)
@@ -84,6 +84,6 @@ print train_datas.shape
 print train_class
 
 # # sk分类算法计算各种算法的精确度
-skclassification.compareAlgorithm_SplitParam(train_datas, train_class, test_datas, test_class)
+skclassification.compareAlgorithm_Ensemble(train_datas, train_class, test_datas, test_class)
 
 
