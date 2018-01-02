@@ -24,6 +24,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
+from xgboost import XGBClassifier
 
 # 导入数据
 # filename = 'data/iris.data.csv'
@@ -57,18 +58,10 @@ def showGraph(dataset):
     pyplot.show()
 
 
-# 算法审查，数据集分为两个参数，其中训练数据集和测试数据集是和在一起的
-def compareAlgorithm(X, Y, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
-    # 分离数据集
-    validation_size = validationSizeRatio
 
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
-
-    compareAlgorithm_SplitParam(X_train, Y_train, X_validation, Y_validation, num_folds=num_folds, seed=seed, scoring=scoring)
 
 # 算法审查，数据集分为四个参数，其中训练数据集合测试数据集已经分开
-def compareAlgorithm_SplitParam(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
+def compareAlgorithm(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
 
     models = {}
     models['LR'] = LogisticRegression()
@@ -87,18 +80,7 @@ def compareAlgorithm_SplitParam(X_train,Y_train,X_validation,Y_validation,num_fo
         print('%s: %f (%f)' %(key, cv_results.mean(), cv_results.std()))
     return models, results
 
-# compareAlgorithm(dataset, 4, 0.2)
-def compareAlgorithm_Pipelines(X, Y,  validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
-    # 分离数据集
-    validation_size = validationSizeRatio
-
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
-
-    compareAlgorithm_Pipelines_SplitParam(X_train, Y_train, X_validation, Y_validation, num_folds=num_folds, seed=seed, scoring=scoring)
-
-
-def compareAlgorithm_Pipelines_SplitParam(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
+def compareAlgorithm_Pipelines(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
 
     # 评估算法 - 正态化数据
     pipelines = {}
@@ -117,17 +99,8 @@ def compareAlgorithm_Pipelines_SplitParam(X_train,Y_train,X_validation,Y_validat
 
     return pipelines, results
 
-# compareAlgorithm_Pipelines(dataset, 4, 0.2)
-
-def compareAlgorithm_Ensemble(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+# 数据集分为四个参数，训练集和测试集已经分好
+def compareAlgorithm_Ensemble(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
 
     # 集成算法
     ensembles = {}
@@ -135,6 +108,7 @@ def compareAlgorithm_Ensemble(dataset, classPosition, validationSizeRatio=0.2, n
     ensembles['ScaledGBM'] = Pipeline([('Scaler', StandardScaler()), ('GBM', GradientBoostingClassifier())])
     ensembles['ScaledRF'] = Pipeline([('Scaler', StandardScaler()), ('RFR', RandomForestClassifier())])
     ensembles['ScaledET'] = Pipeline([('Scaler', StandardScaler()), ('ETR', ExtraTreesClassifier())])
+    ensembles['ScaledXGB'] = Pipeline([('Scaler', StandardScaler()), ('XGB', XGBClassifier())])
 
     results = []
     for key in ensembles:
@@ -160,14 +134,7 @@ def compareAlgorithm_BoxLine(models, results):
 # compareAlgorithm_BoxLine(models, results)
 
 # 分离数据集
-def optimizeAlgorithm_KNN(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
-
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+def optimizeAlgorithm_KNN(X_train, Y_train,X_validation, Y_validation, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
 
     # 调参改进算法 - KNN
     scaler = StandardScaler().fit(X_train)
@@ -188,15 +155,7 @@ def optimizeAlgorithm_KNN(dataset, classPosition, validationSizeRatio=0.2, num_f
 # optimizeAlgorithm_KNN(dataset, 4)
 
 # 调参改进算法 - SVM
-def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='accuracy'):
-
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+def optimizeAlgorithm_SVM(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='accuracy'):
 
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train).astype(float)
@@ -218,15 +177,7 @@ def optimizeAlgorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, num_f
 # optimizeAlgorithm_SVM(dataset, 4)
 
 # 调参改进算法 - SVM
-def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
-
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+def optimizeAlgorithm_GradientBoosting(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train)
@@ -240,15 +191,7 @@ def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRat
 
 # optimizeAlgorithm_GradientBoosting(dataset, 4)
 
-def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7, c_value=0.8, kernel_value='linear'):
-
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+def algorithm_SVM(X_train,Y_train,X_validation,Y_validation, c_value=0.8, kernel_value='linear'):
 
     # 模型最终化
     scaler = StandardScaler().fit(X_train)
@@ -263,4 +206,13 @@ def algorithm_SVM(dataset, classPosition, validationSizeRatio=0.2, seed=7, c_val
     print(confusion_matrix(Y_validation, predictions))
     print(classification_report(Y_validation, predictions))
 
-# algorithm_SVM(dataset, 4)
+
+def algorithm_XGBoost(X_train,Y_train,X_validation,Y_validation, c_value=0.8, kernel_value='linear'):
+    model = XGBClassifier()
+    model.fit(X_train, Y_train)
+    # make predictions for test data
+    y_pred = model.predict(X_validation)
+    predictions = [round(value) for value in y_pred]
+    # evaluate predictions
+    accuracy = accuracy_score(Y_validation, predictions)
+    print("Accuracy: %.2f%%" % (accuracy * 100.0))

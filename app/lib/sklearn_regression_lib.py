@@ -88,14 +88,9 @@ def showGraph(dataset):
 
 
 # 算法比较
-def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
+def compareAlgorithm(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
-    X_train, X_validation, Y_train, Y_validation = train_test_split(X, Y, test_size=validation_size, random_state=seed)
+
 
     # 评估算法 - baseline
     models = {}
@@ -117,15 +112,8 @@ def compareAlgorithm(dataset, classPosition, validationSizeRatio=0.2, num_folds=
 # compareAlgorithm(dataset, 13, 0.2, 10, 7, 'neg_mean_squared_error')
 
 
-def compareAlgorithm_Pipelines(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
+def compareAlgorithm_Pipelines(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
 
     # 评估算法 - 正态化数据
     pipelines = {}
@@ -146,15 +134,7 @@ def compareAlgorithm_Pipelines(dataset, classPosition, validationSizeRatio=0.2, 
 
 # compareAlgorithm_Pipelines(dataset, 13, 0.2, 10, 7, 'neg_mean_squared_error')
 
-def compareAlgorithm_Ensemble(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+def compareAlgorithm_Ensemble(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
     # 集成算法
     ensembles = {}
@@ -190,15 +170,8 @@ def compareAlgorithm_BoxLine(models, results):
 # compareAlgorithm_BoxLine(models, results)
 
 # K近邻算法的K值默认是5个，可以通过网格搜索算法优化参数
-def optimizeAlgorithm_KNN(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
+def optimizeAlgorithm_KNN(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
 
     # 调参改进算法 - KNN
     scaler = StandardScaler().fit(X_train)
@@ -219,16 +192,9 @@ def optimizeAlgorithm_KNN(dataset, classPosition, validationSizeRatio=0.2, num_f
 # optimizeAlgorithm_KNN(dataset, 13, validationSizeRatio=0.2, num_folds=10, seed= 7, scoring='neg_mean_squared_error')
 
 # 集成算法GBM - 调参
-def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
+def optimizeAlgorithm_GradientBoosting(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
 
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train)
     param_grid = {'n_estimators': [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]}
@@ -241,15 +207,7 @@ def optimizeAlgorithm_GradientBoosting(dataset, classPosition, validationSizeRat
 # optimizeAlgorithm_GradientBoosting(dataset, 13, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error')
 
     # 集成算法ET - 调参
-def optimizeAlgorithm_ExtraTrees(dataset, classPosition, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
-
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
+def optimizeAlgorithm_ExtraTrees(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train)
@@ -263,15 +221,8 @@ def optimizeAlgorithm_ExtraTrees(dataset, classPosition, validationSizeRatio=0.2
 
 # optimizeAlgorithm_ExtraTrees(dataset, 13, validationSizeRatio=0.2, num_folds=10, seed=7, scoring='neg_mean_squared_error')
 
-def algorithm_ExtraTrees(dataset, classPosition, validationSizeRatio=0.2, seed=7):
+def algorithm_ExtraTrees(X_train,Y_train,X_validation,Y_validation, seed=7):
 
-    # 分离数据集
-    array = dataset.values
-    X = array[:, 0:classPosition]
-    Y = array[:, classPosition]
-    validation_size = validationSizeRatio
-    X_train, X_validation, Y_train, Y_validation = \
-        train_test_split(X, Y, test_size=validation_size, random_state=seed)
 
     # 训练模型
     scaler = StandardScaler().fit(X_train)
