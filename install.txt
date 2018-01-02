@@ -15,3 +15,8 @@ linkdata_api_py/app/config.py
 
 4、运行环境
 python run.py
+
+5、安装nltk
+
+condata install nltk
+python -m nltk.downloader all # 下载数据集

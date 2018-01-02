@@ -7,3 +7,4 @@ matplotlib==2.1.1
 scikit-learn
 PyJWT
 pandasticsearch
+seaborn
