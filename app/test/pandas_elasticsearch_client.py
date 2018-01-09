@@ -2,7 +2,7 @@
 
 import pandas as pd
 import numpy as np
-from espandas import Espandas
+from app.lib.espandas import Espandas
 from elasticsearch import Elasticsearch
 from elasticsearch.exceptions import RequestError, ConnectionError
 import app.config as config
@@ -59,6 +59,7 @@ def es_client():
             esp = Espandas(es)
             esp.es_write(df, INDEX, TYPE)
             k = list(df['indexId'].astype('str'))
+            print 'k is :', k
             res = esp.es_read(k, INDEX, TYPE)
 
             # The returned DataFrame should match the original

@@ -39,9 +39,11 @@ def showInfo(dataset):
     print(dataset.head(10))
     # 统计描述数据信息
     print(dataset.describe())
-    # 分类分布情况
-    print(dataset.groupby('class').size())
 
+
+def showClassInfo(dataset,className):
+    # 数据标签分类分布情况
+    print(dataset.groupby(className).size())
 
 # showGraph(dataset)
 def showGraph(dataset):
@@ -56,7 +58,6 @@ def showGraph(dataset):
     # 散点矩阵图
     scatter_matrix(dataset)
     pyplot.show()
-
 
 
 

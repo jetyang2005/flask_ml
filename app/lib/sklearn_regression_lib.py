@@ -194,7 +194,6 @@ def optimizeAlgorithm_KNN(X_train,Y_train,X_validation,Y_validation, num_folds=1
 # 集成算法GBM - 调参
 def optimizeAlgorithm_GradientBoosting(X_train,Y_train,X_validation,Y_validation, num_folds=10, seed=7, scoring='neg_mean_squared_error'):
 
-
     scaler = StandardScaler().fit(X_train)
     rescaledX = scaler.transform(X_train)
     param_grid = {'n_estimators': [10, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900]}
