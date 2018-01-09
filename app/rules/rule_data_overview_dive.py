@@ -7,6 +7,7 @@ import uuid
 import pandas as pd
 import base64
 import json
+import types
 
 from app.lib.elasticsearch_util import Elasticsearch_Util
 from app.facets_overview.python.generic_feature_statistics_generator import GenericFeatureStatisticsGenerator
@@ -23,7 +24,7 @@ def init_api(app, es_util):
         endTime = paramDict['endTime']
         queryType = paramDict['queryType']
 
-        returnUrl = ""
+        returnUrl = "NULL"
 
         # 查询全部
         query_data = {
@@ -46,8 +47,15 @@ def init_api(app, es_util):
 
         df = es_util.es_read_querybody(indexName, typeName, query_data)
 
+        if df is None:
+            return returnUrl
+
+        if df.empty:
+            return returnUrl
+
         if(queryType == 'overview'):
             returnUrl = fun_facets_overview(df)
+
         if(queryType == 'dive'):
             returnUrl = fun_facets_dive(df)
 
