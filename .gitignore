@@ -25,6 +25,11 @@ wheels/
 *.egg
 MANIFEST
 
+app/jupyter_test/airbnbdata
+app/jupyter_test/car-dataset
+app/jupyter_test/credit-dataset
+app/jupyter_test/data
+
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.
