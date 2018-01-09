@@ -8,3 +8,6 @@ scikit-learn
 PyJWT
 pandasticsearch
 seaborn
+kafka-python
+Flask-Script
+Flask-Migrate
