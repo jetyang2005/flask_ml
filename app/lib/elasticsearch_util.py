@@ -22,7 +22,7 @@ class Elasticsearch_Util():
         logging.basicConfig(level=logging.DEBUG,
                 format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                 datefmt='%a, %d %b %Y %H:%M:%S',
-                filename=config.ELASTICSEARCH_LOG_DIR,
+                filename=r'%config.ELASTICSEARCH_LOG_DIR',
                 filemode='w')
 
         # 将日志打印在屏幕上
