@@ -71,34 +71,28 @@ class Elasticsearch_Util():
 
         print(index_name +" Got %d Hits: " % res.get("hits").get("total"))
 
-    def es_read(self, keys, index, doc_type):
-        """
-        Read from an ElasticSearch index and return a DataFrame
-        :param keys: a list of keys to extract in elasticsearch
-        :param index: the ElasticSearch index to read
-        :param doc_type: the ElasticSearch doc_type to read
-        """
-        self.successful_ = 0
-        self.failed_ = 0
 
-        # Collect records for all of the keys
-        records = []
-        for key in keys:
-            try:
-                record = self.client.get(index=index, doc_type=doc_type, id=key)
-                self.successful_ += 1
-                if '_source' in record:
-                    records.append(record['_source'])
-            except NotFoundError as nfe:
-                print('Key not found: %s' % nfe)
-                self.failed_ += 1
+    def es_read_scroll_scan(self, index, doc_type, querybody,size):
+        # Initialize the scroll
+        page = self.es.search(
+            index=index,
+            doc_type=doc_type,
+            scroll='2m',
+            size=size,
+            body=querybody)
+        sid = page['_scroll_id']
+        scroll_size = page['hits']['total']
 
-        # Prepare the records into a single DataFrame
-        df = None
-        if records:
-            df = pd.DataFrame(records).fillna(value=np.nan)
-            df = df.reindex_axis(sorted(df.columns), axis=1)
-        return df
+        # Start scrolling
+        while (scroll_size > 0):
+            print "Scrolling..."
+            page = self.es.scroll(scroll_id=sid, scroll='2m')
+            # Update the scroll ID
+            sid = page['_scroll_id']
+            # Get the number of results that we returned in the last scroll
+            scroll_size = len(page['hits']['hits'])
+            print "scroll size: " + str(scroll_size)
+            # Do something with the obtained page
 
     def es_read_querybody(self, index, doc_type, querybody):
         """
