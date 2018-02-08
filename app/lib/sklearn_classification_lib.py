@@ -24,7 +24,7 @@ from sklearn.ensemble import AdaBoostClassifier
 from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.ensemble import ExtraTreesClassifier
-from xgboost import XGBClassifier
+#from xgboost import XGBClassifier
 
 # 导入数据
 # filename = 'data/iris.data.csv'
@@ -65,12 +65,15 @@ def showGraph(dataset):
 def compareAlgorithm(X_train,Y_train,X_validation,Y_validation,num_folds=10, seed=7, scoring='accuracy'):
 
     models = {}
-    models['LR'] = LogisticRegression()
-    models['LDA'] = LinearDiscriminantAnalysis()
+
+
     models['KNN'] = KNeighborsClassifier()
     models['CART'] = DecisionTreeClassifier()
-    models['NB'] = GaussianNB()
-    models['SVM'] = SVC()
+    #models['SVM'] = SVC()
+    #models['LR'] = LogisticRegression()
+
+    # models['LDA'] = LinearDiscriminantAnalysis()
+    # models['NB'] = GaussianNB()
 
     # 评估算法
     results = []
@@ -109,7 +112,7 @@ def compareAlgorithm_Ensemble(X_train,Y_train,X_validation,Y_validation,num_fold
     ensembles['ScaledGBM'] = Pipeline([('Scaler', StandardScaler()), ('GBM', GradientBoostingClassifier())])
     ensembles['ScaledRF'] = Pipeline([('Scaler', StandardScaler()), ('RFR', RandomForestClassifier())])
     ensembles['ScaledET'] = Pipeline([('Scaler', StandardScaler()), ('ETR', ExtraTreesClassifier())])
-    ensembles['ScaledXGB'] = Pipeline([('Scaler', StandardScaler()), ('XGB', XGBClassifier())])
+    #ensembles['ScaledXGB'] = Pipeline([('Scaler', StandardScaler()), ('XGB', XGBClassifier())])
 
     results = []
     for key in ensembles:
@@ -208,12 +211,12 @@ def algorithm_SVM(X_train,Y_train,X_validation,Y_validation, c_value=0.8, kernel
     print(classification_report(Y_validation, predictions))
 
 
-def algorithm_XGBoost(X_train,Y_train,X_validation,Y_validation, c_value=0.8, kernel_value='linear'):
-    model = XGBClassifier()
-    model.fit(X_train, Y_train)
-    # make predictions for test data
-    y_pred = model.predict(X_validation)
-    predictions = [round(value) for value in y_pred]
-    # evaluate predictions
-    accuracy = accuracy_score(Y_validation, predictions)
-    print("Accuracy: %.2f%%" % (accuracy * 100.0))
+#def algorithm_XGBoost(X_train,Y_train,X_validation,Y_validation, c_value=0.8, kernel_value='linear'):
+#    model = XGBClassifier()
+#    model.fit(X_train, Y_train)
+#    # make predictions for test data
+#    y_pred = model.predict(X_validation)
+#    predictions = [round(value) for value in y_pred]
+#    # evaluate predictions
+#    accuracy = accuracy_score(Y_validation, predictions)
+#    print("Accuracy: %.2f%%" % (accuracy * 100.0))

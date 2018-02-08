@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.tree import DecisionTreeClassifier
@@ -13,12 +14,21 @@ import pandas as pd
 # import time
 import datetime
 
+# import logging
+
 # print time.time()
 # print time.localtime(time.time())
 # print time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time()))
 
 
+# logging.basicConfig(level=logging.DEBUG,
+#                    format='%(asctime)s | %(filename)s[line:%(lineno)d] | %(levelname)s | %(message)s',
+#                    # datefmt='%Y-%m-%d"T"%H:%M:%S',
+#                    filename='nlp_predict.log',
+#                    filemode='a')
+# logging.debug('This is debug message')
 starttime = datetime.datetime.now()
+# logging.debug("当前的日期和时间： %s" % starttime)
 print ("当前的日期和时间是 %s" % starttime)
 
 
@@ -174,10 +184,12 @@ es_util = Elasticsearch_Util()
 
 index = "1012-knowledge_training-*"
 type = "knowledge_training"
-beginTime = "2018-01-10T00:00:00.000+08:00"
-endTime = "2018-01-11T00:00:00.000+08:00"
+beginTime = "2018-01-30T00:00:00.000+08:00"
+# endTime = "2018-01-12T00:00:00.000+08:00"
+endTime = "2018-01-31T00:00:00.000+08:00"
 fromnum = 0
-size = 100
+# size = 101
+size = 10000
 tag = "isException"
 logmsg = "logBody"
 source_include = [tag, logmsg]
@@ -195,26 +207,92 @@ train_data = getDataFromES(es_util, index=index, type=type,
                            source_include=source_include)
 feature_data_array = train_data[logmsg]
 class_data_array = train_data[tag]
-# print feature_data_array
-# print class_data_array
-
+print len(feature_data_array)
+print len(class_data_array)
 
 # 提取特征
 tf_transformer = TfidfVectorizer(tokenizer=textAnalyzer.tokenize, stop_words='english', decode_error='ignore')
+#print tf_transformer.max_features
 feature_datas = tf_transformer.fit_transform(feature_data_array)
-# joblib.dump(tf_transformer, 'knowledge_tf_transformer.pkl')
+print feature_datas.toarray()
+print tf_transformer.get_feature_names()
 
-# 将类别转化为数字标签
+wordlist = tf_transformer.get_feature_names()  # 获取词袋模型中的所有词
+# tf-idf矩阵 元素a[i][j]表示j词在i类文本中的tf-idf权重
+weightlist = feature_datas.toarray()
+# 打印每类文本的tf-idf词语权重，第一个for遍历所有文本，第二个for便利某一类文本下的词语权重
+for i in range(len(weightlist)):
+    for j in range(len(wordlist)):
+        if weightlist[i][j] > 0.0:
+            if  wordlist[j]=='mapped':
+                print "-------这里输出第", i, "类文本的词语tf-idf权重------"
+                print wordlist[j], weightlist[i][j]
+
+    # 将类别转化为数字标签
 le = LabelEncoder()
 train_labelValues = le.fit_transform(class_data_array)
-# joblib.dump(le, 'knowledge_labelencoder.pkl')
 
-# model = DecisionTreeClassifier()
-# model.fit(feature_datas, train_labelValues)
+model = DecisionTreeClassifier()
+model.fit(feature_datas, train_labelValues)
+# print model.n_features_
+# joblib.dump(tf_transformer, 'knowledge_tf_transformer.pkl')
+# joblib.dump(le, 'knowledge_labelencoder.pkl')
 # joblib.dump(model, 'knowledge_cart.pkl')
 
-skclassification.compareAlgorithm(X_train=feature_datas, Y_train=train_labelValues, X_validation=feature_datas,
-                                  Y_validation=train_labelValues)
+
+# teststack4212_804
+joblib.dump(tf_transformer, r'modelspkl\teststack4212_804\knowledge_tf_transformer.pkl')
+joblib.dump(le, r'modelspkl\teststack4212_804\knowledge_labelencoder.pkl')
+joblib.dump(model, r'modelspkl\teststack4212_804\knowledge_cart.pkl')
+
+
+# test100
+# joblib.dump(tf_transformer, r'modelspkl\test100\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\test100\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\test100\knowledge_cart.pkl')
+
+# teststack100
+# joblib.dump(tf_transformer, r'modelspkl\teststack100\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack100\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack100\knowledge_cart.pkl')
+
+# teststack50_132
+# joblib.dump(tf_transformer, r'modelspkl\teststack50_132\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack50_132\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack50_132\knowledge_cart.pkl')
+
+# teststack130_0
+# joblib.dump(tf_transformer, r'modelspkl\teststack130_0\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack130_0\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack130_0\knowledge_cart.pkl')
+
+# teststack130_1
+# joblib.dump(tf_transformer, r'modelspkl\teststack130_1\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack130_1\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack130_1\knowledge_cart.pkl')
+
+# teststack0_130
+# joblib.dump(tf_transformer, r'modelspkl\teststack0_130\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack0_130\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack0_130\knowledge_cart.pkl')
+
+# teststack1_130
+# joblib.dump(tf_transformer, r'modelspkl\teststack1_130\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack1_130\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack1_130\knowledge_cart.pkl')
+
+# teststack_PorterStemmer_804_804
+# joblib.dump(tf_transformer, r'modelspkl\teststack_PorterStemmer_804_804\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack_PorterStemmer_804_804\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack_PorterStemmer_804_804\knowledge_cart.pkl')
+
+# teststack_NOPorterStemmer_804_804
+# joblib.dump(tf_transformer, r'modelspkl\teststack_NOPorterStemmer_804_804\knowledge_tf_transformer.pkl')
+# joblib.dump(le, r'modelspkl\teststack_NOPorterStemmer_804_804\knowledge_labelencoder.pkl')
+# joblib.dump(model, r'modelspkl\teststack_NOPorterStemmer_804_804\knowledge_cart.pkl')
+
+#skclassification.compareAlgorithm(X_train=feature_datas, Y_train=train_labelValues, X_validation=feature_datas,
+#                                 Y_validation=train_labelValues)
 # =====================================================
 endtime = datetime.datetime.now()
 print ("当前的日期和时间是 %s" % endtime)
