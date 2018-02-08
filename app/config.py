@@ -4,7 +4,12 @@
 DEBUG = True
 PORT = 3333
 #HOST = "10.0.0.188"
-HOST = "10.0.0.6"
+#HOST = "10.0.0.6"
+#HOST = "10.0.0.3"
+#HOST = "10.0.0.27"
+#HOST = "10.0.0.5"
+#HOST = "10.0.0.31"
+HOST = "10.0.0.4"
 
 # 关系型数据库配置，此数据库配置需要与springboot平台数据库保持一致
 DB_USER = 'root'
@@ -34,4 +39,4 @@ SQLALCHEMY_DATABASE_URI = 'mysql://' + DB_USER + ':' + DB_PASSWORD + '@' + DB_HO
 
 # elasticsearch基础类库日志
 #ELASTICSEARCH_LOG_DIR = '/Users/yangwm/flask/linkdata_api_py/log/elastticsearch.log'
-ELASTICSEARCH_LOG_DIR = 'log/elastticsearch.log'
+ELASTICSEARCH_LOG_DIR = r'elastticsearch.log'
