@@ -113,7 +113,7 @@ class Elasticsearch_Util():
             self.successful_ += 1
             if '_source' in record:
                 records.append(record['_source'])
-        print len(records)
+        print "es hit total:",len(records)
         # Prepare the records into a single DataFrame
         df = None
         if records:
