@@ -1,51 +1,30 @@
 #-*- coding: UTF-8 -*-
-from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
-from flask import url_for, redirect, send_from_directory
-import os
+from flask import request
 import uuid
-import pandas as pd
 import base64
 import json
-import types
 
-from app.lib.elasticsearch_util import Elasticsearch_Util
 from app.facets_overview.python.generic_feature_statistics_generator import GenericFeatureStatisticsGenerator
+
+from app.rules.facets import facets_utils
+
 
 def init_api(app, es_util):
 
     @app.route('/showOverviewAndDive', methods=['POST'])
     def showOverviewAndDive():
         parmStr = request.get_data()
+        print "请求json字符串：",parmStr
         paramDict = json.loads(parmStr)
-        indexName = paramDict['indexName']
-        typeName = paramDict['typeName']
+        datasourceId = paramDict['datasourceId']
+        datasetId = paramDict['datasetId']
         beginTime = paramDict['beginTime']
         endTime = paramDict['endTime']
         queryType = paramDict['queryType']
 
         returnUrl = "NULL"
 
-        # 查询全部
-        query_data = {
-            "query": {
-                "bool" :
-                    { "must" :
-                          [
-                              { "range" :
-                                    { "@timestamp" :
-                                          { "from" : beginTime,
-                                            "to" : endTime
-                                          }
-                                    }
-                              }
-                          ]
-                    }
-        },
-            "size": 1000
-        }
-
-        df = es_util.es_read_querybody(indexName, typeName, query_data)
+        df= facets_utils.configanalysis(datasourceId, datasetId, beginTime, endTime)
 
         if df is None:
             return returnUrl

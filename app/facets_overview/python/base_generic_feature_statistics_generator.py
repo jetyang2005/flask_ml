@@ -194,7 +194,7 @@ class BaseGenericFeatureStatisticsGenerator(object):
         # Process the found feature for each dataset.
         for j, dataset in enumerate(datasets):
           feat = all_datasets.datasets[j].features.add(
-              type=feature_type, name=key.encode('utf-8'))
+              type=feature_type, name=str(key).encode('utf-8'))
           value = dataset['entries'].get(key)
           has_data = value is not None and (value['vals'].size != 0
                                             if isinstance(
