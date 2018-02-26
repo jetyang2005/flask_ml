@@ -11,3 +11,4 @@ seaborn
 kafka-python
 Flask-Script
 Flask-Migrate
+mysql-python

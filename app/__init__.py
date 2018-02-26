@@ -48,8 +48,8 @@ def create_app(config_filename):
     from app.rules.rule_data_overview_dive import init_api
     init_api(app, es_util)
 
-    # 注册日志异常检测API接口
-    from app.rules.nlp_error_predict import init_api
-    init_api(app, es_util)
+    # # 注册日志异常检测API接口
+    # from app.rules.nlp_error_predict import init_api
+    # init_api(app, es_util)
 
     return app

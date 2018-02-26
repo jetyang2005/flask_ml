@@ -28,11 +28,24 @@ python run.py
 condata install nltk
 python -m nltk.downloader all # 下载数据集
 
-6、安装keras和tensorflow
-export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.3.0-py2-none-any.whl
+6、安装keras和tensorflow,python2
+export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.4.0-py2-none-any.whl
 pip install --upgrade $TF_BINARY_URL
 pip install keras
 
+python3
+export TF_BINARY_URL=https://storage.googleapis.com/tensorflow/mac/cpu/tensorflow-1.4.0-py3-none-any.whl
+pip3 install --upgrade $TF_BINARY_URL
+
+
+7、安装airflow
+1）pip install airflow
+2）airflow initdb
+3)设置airflow根路径，export AIRFLOW_HOME="/Users/yangwm/flask/linkdata_api_py/airflow" ,此路径可以在当前用户下设置，在
+subl ~/bash_profile,中添加上述路径，然后执行 source ~/bash_profile 使之生效。
+4）配置数据库，airflow.cfg，sql_alchemy_conn = mysql://spring:spring@localhost:3306/airflow
+5）重新执行airflow initdb
+6) airflow webserver -p 8080
 
 
 

@@ -116,23 +116,43 @@ def runApriori(data_iter, minSupport, minConfidence):
 
 def printResults(items, rules):
 
-    returnStr="数据项分类::数据项名称::评分"
+    returnStr="from::to::score"
 
     """prints the generated itemsets sorted by support and the confidence rules sorted by confidence"""
-    for item, support in sorted(items, key=lambda (item, support): support):
-        if(returnStr == ""):
-            returnStr = "频繁项"+"::"+str(item)+"::"+str(support)
-        else:
-            returnStr = returnStr+";;"+"频繁项"+"::"+str(item)+"::"+str(support)
-        print "item: %s , %.3f" % (str(item), support)
-    print "\n------------------------ RULES:"
+    # for item, support in sorted(items, key=lambda (item, support): support):
+    #     if(returnStr == ""):
+    #         returnStr = "频繁项"+"::"+str(item)+"::"+str(support)
+    #     else:
+    #         returnStr = returnStr+";;"+"频繁项"+"::"+str(item)+"::"+str(support)
+    #     print "item: %s , %.3f" % (str(item), support)
+    # print "\n------------------------ RULES:"
     for rule, confidence in sorted(rules, key=lambda (rule, confidence): confidence):
         pre, post = rule
 
-        returnStr = returnStr + ";;" + "关联项"+"::" + str(pre)+" ==> "+ str(post)+ "::" + str(confidence)
+        returnStr = returnStr + ";;" + str(pre)+"::" + str(post)+ "::" + str(confidence)
         print "Rule: %s ==> %s , %.3f" % (str(pre), str(post), confidence)
 
     return returnStr
+
+# def printResults(items, rules):
+#
+#     returnStr="数据项分类::数据项名称::评分"
+#
+#     """prints the generated itemsets sorted by support and the confidence rules sorted by confidence"""
+#     # for item, support in sorted(items, key=lambda (item, support): support):
+#     #     if(returnStr == ""):
+#     #         returnStr = "频繁项"+"::"+str(item)+"::"+str(support)
+#     #     else:
+#     #         returnStr = returnStr+";;"+"频繁项"+"::"+str(item)+"::"+str(support)
+#     #     print "item: %s , %.3f" % (str(item), support)
+#     # print "\n------------------------ RULES:"
+#     for rule, confidence in sorted(rules, key=lambda (rule, confidence): confidence):
+#         pre, post = rule
+#
+#         returnStr = returnStr + ";;" + "关联项"+"::" + str(pre)+" ==> "+ str(post)+ "::" + str(confidence)
+#         print "Rule: %s ==> %s , %.3f" % (str(pre), str(post), confidence)
+#
+#     return returnStr
 
 def dataFromFile(fname):
         """Function which reads from the file and yields a generator"""
