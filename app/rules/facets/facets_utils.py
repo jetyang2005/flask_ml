@@ -3,7 +3,15 @@ import MySQLdb as mdb
 import pandas as pd
 from app.lib.mysql_util import Mysql_Util
 from app.lib.elasticsearch_util import Elasticsearch_Util
+from app.lib.ms_sqlserver_util import MSSQL
+from app.lib.oracle_util import cxOracle
 
+"""
+为了使用数据集分析功能，数据集需要做如下处理：
+如果数据源为mysql，则需要在查询字段中添加 unix_timestamp(datatime) as time_stamp，其中datatime为表中的时间字段；
+如果数据源为oracle，则需要在查询字段中添加 TO_NUMBER(TO_DATE(datatime,'YYYY') - TO_DATE('1970-01-01 8:0:0','YYYY-MM-DD HH24:MI:SS'))*24*60*60*1000 as time_stamp，
+其中datatime为表中的时间字段，‘YYYY’代表时间格式，可以根据datatime的格式进行自定义。
+"""
 def configanalysis(datasourceId, datasetId, beginTime, endTime):
     """
     从数据库中读取数据源于数据集中的配置信息
@@ -60,7 +68,7 @@ def parse_js(expr):
 def jdbcconfiganalysis(parmStr, dataset_df, beginTime, endTime):
     """
      解析jdbc类型的json
-     数据库类型的查询，需要将其中的一个时间字段做进一步处理 unix_timestamp(stat_period) as timestamps,
+     数据库类型的查询，需要将其中的一个时间字段做进一步处理 unix_timestamp(stat_period) as time_stamp,
      :param parmStr:非标准JSON的字符串
      :param dataset_df:从数据库中查询出的数据集的配置
      :return:Python Dataframe
@@ -78,29 +86,104 @@ def jdbcconfiganalysis(parmStr, dataset_df, beginTime, endTime):
     username = paramDict["username"]
     password = paramDict["password"]
 
+    if type.lower() == "mysql":
+        return mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime)
+    elif type.lower() == "oracle":
+        return oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime)
+    elif type.lower() == "sql server":
+        return sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime)
+    else:
+        return "database type is error"
+
+
+def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime):
+    """
+    查询mysql中的数据
+    驱动类:com.mysql.jdbc.Driver
+    JDBC连接URL:jdbc:mysql://127.0.0.1:3306/dbname
+    """
     jdbclist = jdbcurl.split("//")[1].split("/")
     host = jdbclist[0].split(":")[0]
     db = jdbclist[1]
+    sqlhead = "select * from ("
+    sql = datasetconfigTosql(dataset_df)
+    sqlend = ') as a where a.time_stamp >= unix_timestamp(\"' + beginTime + '\") and a.time_stamp <= unix_timestamp(\"' + endTime + '\") limit 10000;'
+    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
+    print sqlstr
+    df = mysql_select(host=host, user=username, passwd=password, db=db, sqlstr=sqlstr)
+    return df
 
+
+def sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime):
+    """
+    查询sqlserver中的数据
+    驱动类:com.microsoft.sqlserver.jdbc.SQLServerDriver
+    JDBC连接URL:jdbc:sqlserver://127.0.0.1:1433;DatabaseName=dbname;SelectMethod=Cursor
+    """
+    jdbclist = jdbcurl.split("//")[1].split(";")
+    host = jdbclist[0].split(":")[0]
+    db = jdbclist[1].split("=")[1]
+    sqlhead = "select * from ("
+    sql = datasetconfigTosql(dataset_df)
+    sqlend = ') as a where a.time_stamp >= DATEDIFF(ss,\'1970-01-01 00:00:00+08:00\',\"' + beginTime + '\") and a.time_stamp <= DATEDIFF(ss, \'1970-01-01 00:00:00+08:00\',\"' + endTime + '\") limit 10000;'
+    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
+    print sqlstr
+    df = sqlserver_select(host=host, user=username, pwd=password, db=db, sqlstr=sqlstr)
+    return df
+
+
+def oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime):
+    """
+    查询oracle中的数据
+    驱动类:oracle.jdbc.driver.OracleDriver
+    JDBC连接URL:jdbc:oracle:thin:@127.0.0.1:1521:sid
+    """
+    jdbclist = jdbcurl.split("@")[1].split(":")
+    host = jdbclist[0]
+    service_name = jdbclist[2]
+    tns = host + "/" + service_name
+
+    """
+      select CREATETIME from LINK_ACTIVITYINST 
+      where to_char(CREATETIME,'YYYY-MM-DD HH24:MI:SS' )>='2014-10-13 18:27:53'  and   to_char(CREATETIME,'YYYY-MM-DD HH24:MI:SS' )<='2014-10-13 18:27:53';
+    
+    TO_NUMBER(TO_DATE('1970-01-01 08:00:01', 'YYYY-MM-DD HH24:MI:SS') -      
+                TO_DATE('1970-01-01 8:0:0', 'YYYY-MM-DD HH24:MI:SS')) * 24 * 60 * 60 * 1000
+    """
+    # "beginTime": "2011-03-30T10:44:00.000+08:00",
+
+    beginTime1 = beginTime[0:10] + " " + beginTime[11:19]
+    beginTime2 = "TO_NUMBER(TO_DATE(\'" + beginTime1 + "\', 'YYYY-MM-DD HH24:MI:SS') -  TO_DATE('1970-01-01 8:0:0', 'YYYY-MM-DD HH24:MI:SS')) * 24 * 60 * 60 * 1000"
+
+    endTime1 = endTime[0:10] + " " + endTime[11:19]
+    endTime2 = "TO_NUMBER(TO_DATE(\'" + endTime1 + "\', 'YYYY-MM-DD HH24:MI:SS') -  TO_DATE('1970-01-01 8:0:0', 'YYYY-MM-DD HH24:MI:SS')) * 24 * 60 * 60 * 1000"
+    sqlhead = "select * from ("
+    sql = datasetconfigTosql(dataset_df)
+    sqlend = ') a where a.time_stamp >= ' + beginTime2 + ' and a.time_stamp <= ' + endTime2 + ' and rownum<= 10000'
+
+    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
+    print sqlstr
+
+    # sql2 = "select ID,ORG_ID from T_MDL_HIS_PROPERTYTAX where tax_year>'2016' and rownum<= 10"
+    df = oracle_select(user=username, passwd=password, tns=tns, sqlstr=sqlstr)
+    return df
+
+
+def datasetconfigTosql(dataset_df):
+    """
+    dataset从解析sql语句
+    :param dataset_df:
+    :return:
+    """
     data_json = None
     for indexs in dataset_df.index:
         data_json = dataset_df.loc[indexs, "data_json"]
     paramDict_dataset = parse_js(data_json)
-    sqlhead = "select * from ("
-
     print paramDict_dataset["query"]
-
     sql = paramDict_dataset["query"]["sql"]
-
     if sql.endswith(";"):
         sql = sql[0:-1]
-    sqlend = ') as a where a.timestamps >= unix_timestamp(\"'+beginTime+'\") and a.timestamps <= unix_timestamp(\"'+endTime+'\") limit 10000;'
-    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
-
-    print sqlstr
-
-    df = select_nocolumns(host=host, user=username, passwd=password, db=db, sqlstr=sqlstr)
-    return df
+    return sql
 
 
 def linkESDatacconfiganalysis(parmStr, beginTime, endTime):
@@ -129,13 +212,17 @@ def linkESDatacconfiganalysis(parmStr, beginTime, endTime):
                     ]
                 }
         },
+        "_source": {
+            "includes": [],
+            "excludes": ["_sysNo_", "_nodeName_", "_ip_", "_port_", "_createDate_"]
+        },
         "size": 10000
     }
     df = es_util.es_read_querybody(indexName, typeName, query_data)
     return df
 
 
-def select_nocolumns(host, user, passwd, db, sqlstr):
+def mysql_select(host, user, passwd, db, sqlstr):
     con = None
     try:
         # 连接 mysql 的方法： connect('ip','user','password','dbname')
@@ -163,3 +250,36 @@ def select_nocolumns(host, user, passwd, db, sqlstr):
             cur.close()
             con.commit()
             con.close()
+
+
+def sqlserver_select(host, user, passwd, db, sqlstr):
+    # #返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
+    # ms = MSSQL(host="127.0.0.1", user="sa", pwd="123456", db="ZHONGZI")
+    ms = MSSQL(host=host, user=user, pwd=passwd, db=db)
+    # sqlstr="select processchname, versionsign,createtime from link_processdefine"
+    rows = ms.ExecQuery(sqlstr)
+    records = []
+    for record in rows:
+        print record
+        records.append(record)
+    print "数据总条数:", len(records)
+    # Prepare the records into a single DataFrame
+    df = None
+    if records:
+        df = pd.DataFrame(records)
+    return df
+
+
+def oracle_select(user, passwd, tns, sqlstr):
+    db = cxOracle(user=user, pwd=passwd, tns=tns)
+    rows = db.ExecQuery(sqlstr)
+    records = []
+    for record in rows:
+        print record
+        records.append(record)
+    print "数据总条数:", len(records)
+    # Prepare the records into a single DataFrame
+    df = None
+    if records:
+        df = pd.DataFrame(records)
+    return df
