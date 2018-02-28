@@ -1,6 +1,8 @@
 # -*- coding: UTF-8 -*-
 import MySQLdb as mdb
 import pandas as pd
+import numpy as np
+import json
 from app.lib.mysql_util import Mysql_Util
 from app.lib.elasticsearch_util import Elasticsearch_Util
 from app.lib.ms_sqlserver_util import MSSQL
@@ -12,6 +14,8 @@ from app.lib.oracle_util import cxOracle
 如果数据源为oracle，则需要在查询字段中添加 TO_NUMBER(TO_DATE(datatime,'YYYY') - TO_DATE('1970-01-01 8:0:0','YYYY-MM-DD HH24:MI:SS'))*24*60*60*1000 as time_stamp，
 其中datatime为表中的时间字段，‘YYYY’代表时间格式，可以根据datatime的格式进行自定义。
 """
+
+
 def configanalysis(datasourceId, datasetId, beginTime, endTime):
     """
     从数据库中读取数据源于数据集中的配置信息
@@ -111,6 +115,9 @@ def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endT
     sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
     print sqlstr
     df = mysql_select(host=host, user=username, passwd=password, db=db, sqlstr=sqlstr)
+
+    # sql_test = "select province,city,monthly_plan_value from electricitysales"
+    # df = mysql_select(host=host, user=username, passwd=password, db=db, sqlstr=sql_test)
     return df
 
 
@@ -214,7 +221,7 @@ def linkESDatacconfiganalysis(parmStr, beginTime, endTime):
         },
         "_source": {
             "includes": [],
-            "excludes": ["_sysNo_", "_nodeName_", "_ip_", "_port_", "_createDate_"]
+            "excludes": ["_sysNo_", "_nodeName_", "_ip_", "_port_", "_createDate_", "fileName"]
         },
         "size": 10000
     }
@@ -231,15 +238,31 @@ def mysql_select(host, user, passwd, db, sqlstr):
         cur = con.cursor()
         cur.execute(sqlstr)
         rows = cur.fetchall()
+
+        fields = cur.description
+        column_list = []  # 定义字段名的列表
+        for i in fields:
+            # 提取字段名，追加到列表中
+            # print i[0]
+            column_list.append(i[0])
+        # print column_list # 列表显示结果：['id', 'NAME', 'LOCAL', 'mobile', 'CreateTime']
+
         records = []
+        # for row in rows:  # 一次循环，row代表一行，row以元组的形式显示。
+        #    result = {}  # 定义Python 字典
+        #    for i in range(0, len(column_list)):
+        #        result[column_list[i]] = row[i]  # 将row中的每个元素，追加到字典中。　
+        #    jsondata = json.dumps(result, ensure_ascii=False)
+        #    print jsondata
+        #    records.append(jsondata)
         for record in rows:
-            # print record
+            #print record
             records.append(record)
         print "数据总条数:", len(records)
         # Prepare the records into a single DataFrame
         df = None
         if records:
-            df = pd.DataFrame(records)
+            df = pd.DataFrame(records, columns=column_list)
         return df
     except Exception as e:
         print(e)
@@ -272,14 +295,5 @@ def sqlserver_select(host, user, passwd, db, sqlstr):
 
 def oracle_select(user, passwd, tns, sqlstr):
     db = cxOracle(user=user, pwd=passwd, tns=tns)
-    rows = db.ExecQuery(sqlstr)
-    records = []
-    for record in rows:
-        print record
-        records.append(record)
-    print "数据总条数:", len(records)
-    # Prepare the records into a single DataFrame
-    df = None
-    if records:
-        df = pd.DataFrame(records)
+    df = db.ExecQueryTodf(sqlstr)
     return df
