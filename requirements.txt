@@ -11,3 +11,12 @@ seaborn
 kafka-python
 Flask-Script
 Flask-Migrate
+
+决策树可视化环境搭建
+scikit-learn中决策树的可视化一般需要安装graphviz。主要包括graphviz的安装和python的graphviz插件的安装。
+第一步是安装graphviz。下载地址在：http://www.graphviz.org/。如果你是linux，可以用apt-get或者yum的方法安装。如果是windows，就在官网下载msi文件安装。无论是linux还是windows，装完后都要设置环境变量，将graphviz的bin目录加到PATH，比如我是windows，将C:/Program Files (x86)/Graphviz2.38/bin/加入了PATH
+第二步是安装python插件graphviz： pip install graphviz
+第三步是安装python插件pydotplus。这个没有什么好说的: pip install pydotplus
+这样环境就搭好了，有时候python会很笨，仍然找不到graphviz，这时，可以在代码里面加入这一行：
+os.environ["PATH"] += os.pathsep + 'C:/Program Files (x86)/Graphviz2.38/bin/'
+注意后面的路径是你自己的graphviz的bin目录。

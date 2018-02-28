@@ -10,11 +10,12 @@
 #-------------------------------------------------------------------------------
 
 import pymssql
-from  Python_Elasticsearch import ElasticsearchOperate
-from  Process_Stat import Process_Stat
+#from  Python_Elasticsearch import ElasticsearchOperate
+#from  Process_Stat import Process_Stat
 import logging
 import sys
 import time
+import pandas as pd
 
 reload(sys)
 sys.setdefaultencoding( "utf-8" )
@@ -93,116 +94,118 @@ class MSSQL:
         self.conn.commit()
         self.conn.close()
 
-def main():
+#def main2():
+#
+# # ms = MSSQL(host="localhost",user="sa",pwd="123456",db="PythonWeiboStatistics")
+# # #返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
+# # ms.ExecNonQuery("insert into WeiBoUser values('2','3')")
+#
+#    ms = MSSQL(host="10.0.0.29", user="sa", pwd="sysadmin", db="ZHONGZI")
+#
+# # 流程定义表
+#    processdefineList = ms.ExecQuery(
+#        "select processdefname, processchname, versionsign,createtime from link_processdefine")
+#    processdefines = []
+#    for (processdefname, processchname, versionsign, createtime) in processdefineList:
+#        esdata = {"_index": "index_stat_processdefine",
+#              "_type": "type_stat_processdefine",
+#              "_source": {
+#                  "processdefname": processdefname,
+#                  "processchname": processchname,
+#                  "versionsign": versionsign,
+#                  "createtime": str(createtime),
+#              }
+#              }
+#        processdefines.append(esdata)
+#
+#    # 流程实例表
+#    process_processinstList = ms.ExecQuery("select processinstid, processinstname, processdefname, processchname, versionsign,currentstate, createtime, endtime, subtime from link_processinst")
+#    process_processinsts = []
+#    for (processinstid, processinstname, processdefname, processchname, versionsign, currentstate, createtime, endtime, subtime) in process_processinstList:
+#        esdata = {"_index": "index_stat_process_processinst",
+#                  "_type": "type_stat_process_processinst",
+#                  "_source": {
+#                    "processinstid": processinstid,
+#                    "processinstname": processinstname,
+#                    "processdefname": processdefname,
+#                    "processchname": processchname,
+#                      "versionsign": versionsign,
+#                    "currentstate": currentstate,
+#                    "createtime":  str(createtime),
+#                    "endtime": str(endtime),
+#                    "subtime": subtime
+#                        }
+#                }
+#        process_processinsts.append(esdata)
+#
+#    #环节实例表
+#    activityinstList = ms.ExecQuery("select processinstid, processinstname, processdefname, processchname, versionsign,activityinstid,activityinstname, currentstate, createtime, endtime, subtime from link_activityinst")
+#    activityinsts = []
+#    for (processinstid, processinstname, processdefname, processchname, versionsign,activityinstid,activityinstname, currentstate, createtime, endtime, subtime) in activityinstList:
+#        esdata = {"_index": "index_stat_process_activityinst",
+#                  "_type": "type_stat_process_activityinst",
+#                  "_source": {
+#                    "processinstid": processinstid,
+#                    "processinstname": processinstname,
+#                    "processdefname": processdefname,
+#                    "processchname": processchname,
+#                      "versionsign": versionsign,
+#                    "activityinstid": activityinstid,
+#                    "activityinstname": activityinstname,
+#                      "currentstate": currentstate,
+#                    "createtime":  str(createtime),
+#                    "endtime": str(endtime),
+#                    "subtime": subtime
+#                    }
+#                }
+#        activityinsts.append(esdata)
+#
+#
+#    #工作项表
+#    workitemList = ms.ExecQuery("select processinstid, processinstname, processdefname, processchname,workitemid,workitemname,istimeout,timeoutnum,activityinstid,activityinstname, currentstate, createtime, endtime, userid,orgid,orgname from link_workitem")
+#    workitems = []
+#    for (processinstid, processinstname, processdefname, processchname,workitemid,workitemname,istimeout,timeoutnum,activityinstid,activityinstname, currentstate, createtime, endtime, userid,orgid,orgname) in workitemList:
+#        esdata = {"_index": "index_stat_process_workitem",
+#                  "_type": "type_stat_process_workitem",
+#                  "_source": {
+#                    "processinstid": processinstid,
+#                    "processinstname": processinstname,
+#                    "processdefname": processdefname,
+#                    "processchname": processchname,
+#                    "workitmeid": workitemid,
+#                    "workitemname": workitemname,
+#                    "istimeout": istimeout,
+#                    "timeoutnum": timeoutnum,
+#                    "currentstate": currentstate,
+#                    "activityinstid": activityinstid,
+#                    "activityinstname": activityinstname,
+#                    "createtime":  str(createtime),
+#                    "endtime": str(endtime),
+#                      "userid": userid,
+#                      "orgid": orgid,
+#                      "orgname": orgname
+#                        }
+#                }
+#        workitems.append(esdata)
+#
+#
+#
+#    process_stat = Process_Stat()
+#    process_stat.create_index()
+#
+#    process_stat.create_data(processdefines)
+#    process_stat.create_data(process_processinsts)
+#    process_stat.create_data(activityinsts)
+#    process_stat.create_data(workitems)
+#
+#
+#    process_stat.query_count("index_stat_process_activityinst", "type_stat_process_activityinst")
+#    process_stat.query_count("index_stat_process_processinst", "type_stat_process_processinst")
+#    process_stat.query_count("index_stat_processdefine", "type_stat_processdefine")
+#    process_stat.query_count("index_stat_process_workitem", "type_stat_process_workitem")
 
- # ms = MSSQL(host="localhost",user="sa",pwd="123456",db="PythonWeiboStatistics")
- # #返回的是一个包含tuple的list，list的元素是记录行，tuple的元素是每行记录的字段
- # ms.ExecNonQuery("insert into WeiBoUser values('2','3')")
-
-    ms = MSSQL(host="10.0.0.29", user="sa", pwd="sysadmin", db="ZHONGZI")
-
- # 流程定义表
-    processdefineList = ms.ExecQuery(
-        "select processdefname, processchname, versionsign,createtime from link_processdefine")
-    processdefines = []
-    for (processdefname, processchname, versionsign, createtime) in processdefineList:
-        esdata = {"_index": "index_stat_processdefine",
-              "_type": "type_stat_processdefine",
-              "_source": {
-                  "processdefname": processdefname,
-                  "processchname": processchname,
-                  "versionsign": versionsign,
-                  "createtime": str(createtime),
-              }
-              }
-        processdefines.append(esdata)
-
-    # 流程实例表
-    process_processinstList = ms.ExecQuery("select processinstid, processinstname, processdefname, processchname, versionsign,currentstate, createtime, endtime, subtime from link_processinst")
-    process_processinsts = []
-    for (processinstid, processinstname, processdefname, processchname, versionsign, currentstate, createtime, endtime, subtime) in process_processinstList:
-        esdata = {"_index": "index_stat_process_processinst",
-                  "_type": "type_stat_process_processinst",
-                  "_source": {
-                    "processinstid": processinstid,
-                    "processinstname": processinstname,
-                    "processdefname": processdefname,
-                    "processchname": processchname,
-                      "versionsign": versionsign,
-                    "currentstate": currentstate,
-                    "createtime":  str(createtime),
-                    "endtime": str(endtime),
-                    "subtime": subtime
-                        }
-                }
-        process_processinsts.append(esdata)
-
-    #环节实例表
-    activityinstList = ms.ExecQuery("select processinstid, processinstname, processdefname, processchname, versionsign,activityinstid,activityinstname, currentstate, createtime, endtime, subtime from link_activityinst")
-    activityinsts = []
-    for (processinstid, processinstname, processdefname, processchname, versionsign,activityinstid,activityinstname, currentstate, createtime, endtime, subtime) in activityinstList:
-        esdata = {"_index": "index_stat_process_activityinst",
-                  "_type": "type_stat_process_activityinst",
-                  "_source": {
-                    "processinstid": processinstid,
-                    "processinstname": processinstname,
-                    "processdefname": processdefname,
-                    "processchname": processchname,
-                      "versionsign": versionsign,
-                    "activityinstid": activityinstid,
-                    "activityinstname": activityinstname,
-                      "currentstate": currentstate,
-                    "createtime":  str(createtime),
-                    "endtime": str(endtime),
-                    "subtime": subtime
-                    }
-                }
-        activityinsts.append(esdata)
-
-
-    #工作项表
-    workitemList = ms.ExecQuery("select processinstid, processinstname, processdefname, processchname,workitemid,workitemname,istimeout,timeoutnum,activityinstid,activityinstname, currentstate, createtime, endtime, userid,orgid,orgname from link_workitem")
-    workitems = []
-    for (processinstid, processinstname, processdefname, processchname,workitemid,workitemname,istimeout,timeoutnum,activityinstid,activityinstname, currentstate, createtime, endtime, userid,orgid,orgname) in workitemList:
-        esdata = {"_index": "index_stat_process_workitem",
-                  "_type": "type_stat_process_workitem",
-                  "_source": {
-                    "processinstid": processinstid,
-                    "processinstname": processinstname,
-                    "processdefname": processdefname,
-                    "processchname": processchname,
-                    "workitmeid": workitemid,
-                    "workitemname": workitemname,
-                    "istimeout": istimeout,
-                    "timeoutnum": timeoutnum,
-                    "currentstate": currentstate,
-                    "activityinstid": activityinstid,
-                    "activityinstname": activityinstname,
-                    "createtime":  str(createtime),
-                    "endtime": str(endtime),
-                      "userid": userid,
-                      "orgid": orgid,
-                      "orgname": orgname
-                        }
-                }
-        workitems.append(esdata)
 
 
 
-    process_stat = Process_Stat()
-    process_stat.create_index()
-
-    process_stat.create_data(processdefines)
-    process_stat.create_data(process_processinsts)
-    process_stat.create_data(activityinsts)
-    process_stat.create_data(workitems)
-
-
-    process_stat.query_count("index_stat_process_activityinst", "type_stat_process_activityinst")
-    process_stat.query_count("index_stat_process_processinst", "type_stat_process_processinst")
-    process_stat.query_count("index_stat_processdefine", "type_stat_processdefine")
-    process_stat.query_count("index_stat_process_workitem", "type_stat_process_workitem")
-
-
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()
