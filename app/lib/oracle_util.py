@@ -1,9 +1,13 @@
-# coding=utf-8
-import cx_Oracle
+# -*- coding: utf-8 -*-
+import os
+
+os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.ZHS16GBK'
+# os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 import sys
 
 reload(sys)
 sys.setdefaultencoding('utf-8')
+import cx_Oracle
 from sqlalchemy import Column, String, create_engine
 import pandas as pd
 
@@ -73,8 +77,56 @@ class cxOracle():
         self.conn.close()
         return resList
 
+    def ExecQueryTodf(self, sql):
+        """
+        sql to dataframe
+        """
+        cur = self.__GetConnect()
+        cur.execute(sql)
+        resList = cur.fetchall()
 
-#def main():
+        fields = cur.description
+        column_list = []  # 定义字段名的列表
+        for i in fields:
+            # print i[0]
+            column_list.append(i[0])
+
+        records = []
+        for record in resList:
+            # for i in range(0,len(record)):
+            # field0 = record[0]
+            # field1 = record[1]
+            # field2 = record[2]
+            # field3 = record[3].decode('gbk').encode('utf-8')
+            # field4 = record[4]
+
+            # fields = (field0, field1, field2, field3, field4)
+            # print fields
+            # records.append(fields)
+            fields = []
+            for i in range(0, len(record)):
+                # try:
+                field_val = record[i]
+                # except (UnicodeDecodeError, UnicodeEncodeError):
+                #   field_val = record[i].decode('gbk').encode('utf-8')
+                #   print field_val
+                if isinstance(field_val, basestring):
+                    field_val = field_val.decode('gbk').encode('utf-8')
+                fields.append(field_val)
+            #print fields
+            records.append(tuple(fields))
+        print "数据总条数:", len(records)
+        # Prepare the records into a single DataFrame
+        df = None
+        if records:
+            df = pd.DataFrame(records, columns=column_list)
+
+        # 查询完毕后必须关闭连接
+        self.conn.close()
+        return df
+
+
+# def main():
 #    db = cxOracle('ccbtrust4', '123456', '10.0.0.99/FOTIC')
 #    # strsql = "select * from AC_APPLICATION"
 #    strsql = " select USERNAME,ACCOUNT_STATUS,PASSWORD_VERSIONS from dba_users"

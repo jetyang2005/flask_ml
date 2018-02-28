@@ -112,13 +112,15 @@ class Elasticsearch_Util():
         for record in res['hits']['hits']:
             self.successful_ += 1
             if '_source' in record:
+                #print record['_source']
                 records.append(record['_source'])
         print "es hit total:",len(records)
         # Prepare the records into a single DataFrame
         df = None
         if records:
-            df = pd.DataFrame(records).fillna(value=np.nan)
-            df = df.reindex(sorted(df.columns), axis=1)
+            df = pd.DataFrame(records)
+            #df = pd.DataFrame(records).fillna(value=np.nan)
+            #df = df.reindex(sorted(df.columns), axis=1)
         return df
 
     def es_write(self, df, index, doc_type, uid_name='indexId'):
