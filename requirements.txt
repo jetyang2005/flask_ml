@@ -13,6 +13,7 @@ Flask-Script
 Flask-Migrate
 
 #数据库
+#cx_oracle 使用5.1.2
 cx_oracle
 pymssql
 
