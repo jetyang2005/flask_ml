@@ -16,7 +16,7 @@ from app.lib.oracle_util import cxOracle
 """
 
 
-def configanalysis(datasourceId, datasetId, beginTime, endTime):
+def configanalysis(datasourceId, datasetId, beginTime, endTime, time_stampFlag):
     """
     从数据库中读取数据源于数据集中的配置信息
     :param datasourceId:
@@ -36,10 +36,10 @@ def configanalysis(datasourceId, datasetId, beginTime, endTime):
     dataset_columns = ["data_json"]
     dataset_df = mysqlselect.select(sqlstr=dataset_sqlstr, columns=dataset_columns)
 
-    return datasetAnalysis(datasource_df, dataset_df, beginTime, endTime)
+    return datasetAnalysis(datasource_df, dataset_df, beginTime, endTime, time_stampFlag)
 
 
-def datasetAnalysis(datasource_df, dataset_df, beginTime, endTime):
+def datasetAnalysis(datasource_df, dataset_df, beginTime, endTime, time_stampFlag):
     """
     根据数据源的类型选择不同的解析方式
     :param datasource_df:
@@ -52,7 +52,7 @@ def datasetAnalysis(datasource_df, dataset_df, beginTime, endTime):
         source_type = datasource_df.loc[indexs, "source_type"]
         config = datasource_df.loc[indexs, "config"]
         if source_type.lower() == "jdbc":
-            return jdbcconfiganalysis(config, dataset_df, beginTime, endTime)
+            return jdbcconfiganalysis(config, dataset_df, beginTime, endTime, time_stampFlag)
         elif source_type.lower() == "linkesdata":
             return linkESDatacconfiganalysis(config, beginTime, endTime)
         else:
@@ -69,7 +69,7 @@ def parse_js(expr):
     return obj
 
 
-def jdbcconfiganalysis(parmStr, dataset_df, beginTime, endTime):
+def jdbcconfiganalysis(parmStr, dataset_df, beginTime, endTime, time_stampFlag):
     """
      解析jdbc类型的json
      数据库类型的查询，需要将其中的一个时间字段做进一步处理 unix_timestamp(stat_period) as time_stamp,
@@ -91,16 +91,16 @@ def jdbcconfiganalysis(parmStr, dataset_df, beginTime, endTime):
     password = paramDict["password"]
 
     if type.lower() == "mysql":
-        return mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime)
+        return mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime, time_stampFlag)
     elif type.lower() == "oracle":
-        return oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime)
-    elif type.lower() == "sql server":
-        return sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime)
+        return oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime, time_stampFlag)
+    #elif type.lower() == "sql server":
+    #    return sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime, time_stampFlag)
     else:
         return "database type is error"
 
 
-def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime):
+def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime, time_stampFlag):
     """
     查询mysql中的数据
     驱动类:com.mysql.jdbc.Driver
@@ -111,8 +111,11 @@ def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endT
     db = jdbclist[1]
     sqlhead = "select * from ("
     sql = datasetconfigTosql(dataset_df)
-    sqlend = ') as a where a.time_stamp >= unix_timestamp(\"' + beginTime + '\") and a.time_stamp <= unix_timestamp(\"' + endTime + '\") limit 10000;'
-    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
+    sqlend = ') as a where a.time_stamp >= unix_timestamp(\'' + beginTime + '\') and a.time_stamp <= unix_timestamp(\'' + endTime + '\') limit 10000;'
+
+    sqlstr = '%s' % (sql)
+    if time_stampFlag is True:
+        sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
     print sqlstr
     df = mysql_select(host=host, user=username, passwd=password, db=db, sqlstr=sqlstr)
 
@@ -121,7 +124,7 @@ def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endT
     return df
 
 
-def sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime):
+def sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime, time_stampFlag):
     """
     查询sqlserver中的数据
     驱动类:com.microsoft.sqlserver.jdbc.SQLServerDriver
@@ -133,13 +136,16 @@ def sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, 
     sqlhead = "select * from ("
     sql = datasetconfigTosql(dataset_df)
     sqlend = ') as a where a.time_stamp >= DATEDIFF(ss,\'1970-01-01 00:00:00+08:00\',\"' + beginTime + '\") and a.time_stamp <= DATEDIFF(ss, \'1970-01-01 00:00:00+08:00\',\"' + endTime + '\") limit 10000;'
-    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
+
+    sqlstr = '%s' % (sql)
+    if time_stampFlag is True:
+        sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
     print sqlstr
     df = sqlserver_select(host=host, user=username, pwd=password, db=db, sqlstr=sqlstr)
     return df
 
 
-def oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime):
+def oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endTime, time_stampFlag):
     """
     查询oracle中的数据
     驱动类:oracle.jdbc.driver.OracleDriver
@@ -168,7 +174,9 @@ def oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, end
     sql = datasetconfigTosql(dataset_df)
     sqlend = ') a where a.time_stamp >= ' + beginTime2 + ' and a.time_stamp <= ' + endTime2 + ' and rownum<= 10000'
 
-    sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
+    sqlstr = '%s' % (sql)
+    if time_stampFlag is True:
+        sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
     print sqlstr
 
     # sql2 = "select ID,ORG_ID from T_MDL_HIS_PROPERTYTAX where tax_year>'2016' and rownum<= 10"
@@ -187,9 +195,11 @@ def datasetconfigTosql(dataset_df):
         data_json = dataset_df.loc[indexs, "data_json"]
     paramDict_dataset = parse_js(data_json)
     print paramDict_dataset["query"]
-    sql = paramDict_dataset["query"]["sql"]
+    sql = paramDict_dataset["query"]["sql"].replace("\n", " ").strip()
+    # print sql
     if sql.endswith(";"):
         sql = sql[0:-1]
+        # print sql
     return sql
 
 
