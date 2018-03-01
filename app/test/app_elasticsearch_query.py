@@ -14,10 +14,12 @@ es_type_name = "linux-system-cpu"
 # 查询全部
 query_data = {"query": {
                     "match_all": {}
-                }
+
+                },
+                "size":1000
              }
 
-#es_util.query(es_index_name, es_type_name, query_data)
+print es_util.es_read_querybody(es_index_name, es_type_name, query_data)
 
 #Term 查询
 query_term_data = {"query":{
@@ -163,15 +165,15 @@ query_orderby_data = {
 
 
 #查询排序,并控制输出条数
-query_orderby_data = {
-                        "query":{
-                            "match_all":{}
-                        },
-                        "size":2,
-                        "sort":{
-                            "metricset.rtt":{                 # 根据age字段升序排序
-                                "order":"desc"       # asc升序，desc降序
-                            }
-                        }
-                    }
-es_util.query_and_filter(es_index_name, es_type_name, query_orderby_data,"hits.hits._id")
+# query_orderby_data = {
+#                         "query":{
+#                             "match_all":{}
+#                         },
+#                         "size":2,
+#                         "sort":{
+#                             "metricset.rtt":{                 # 根据age字段升序排序
+#                                 "order":"desc"       # asc升序，desc降序
+#                             }
+#                         }
+#                     }
+# es_util.query_and_filter(es_index_name, es_type_name, query_orderby_data,"hits.hits._id")

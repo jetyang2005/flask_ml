@@ -12,11 +12,11 @@ kafka-python
 Flask-Script
 Flask-Migrate
 
+
 #数据库
 #cx_oracle 使用5.1.2
 cx_oracle
 pymssql
-
 
 决策树可视化环境搭建
 scikit-learn中决策树的可视化一般需要安装graphviz。主要包括graphviz的安装和python的graphviz插件的安装。

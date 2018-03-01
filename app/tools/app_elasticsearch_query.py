@@ -4,7 +4,7 @@
 # 1 查询上下文中，查询操作不仅仅会进行查询，还会计算分值，用于确定相关度；在过滤器上下文中，查询操作仅判断是否满足查询条件
 # 2 过滤器上下文中，查询的结果可以被缓存。
 
-from  lib.elasticsearch_util import Elasticsearch_Util
+from  app.lib.elasticsearch_util import Elasticsearch_Util
 
 es_util = Elasticsearch_Util()
 
