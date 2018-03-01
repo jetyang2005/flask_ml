@@ -1,4 +1,4 @@
-#-*- coding: UTF-8 -*-
+# -*- coding: UTF-8 -*-
 from flask import request
 import uuid
 import base64
@@ -10,21 +10,21 @@ from app.rules.facets import facets_utils
 
 
 def init_api(app, es_util):
-
     @app.route('/showOverviewAndDive', methods=['POST'])
     def showOverviewAndDive():
         parmStr = request.get_data()
-        print "请求json字符串：",parmStr
+        print "请求json字符串：", parmStr
         paramDict = json.loads(parmStr)
         datasourceId = paramDict['datasourceId']
         datasetId = paramDict['datasetId']
         beginTime = paramDict['beginTime']
         endTime = paramDict['endTime']
         queryType = paramDict['queryType']
+        time_stampFlag = paramDict['time_stampFlag']
 
         returnUrl = "NULL"
 
-        df= facets_utils.configanalysis(datasourceId, datasetId, beginTime, endTime)
+        df = facets_utils.configanalysis(datasourceId, datasetId, beginTime, endTime, time_stampFlag)
 
         if df is None:
             return returnUrl
@@ -32,12 +32,11 @@ def init_api(app, es_util):
         if df.empty:
             return returnUrl
 
-        if(queryType == 'overview'):
+        if (queryType == 'overview'):
             returnUrl = fun_facets_overview(df)
 
-        if(queryType == 'dive'):
+        if (queryType == 'dive'):
             returnUrl = fun_facets_dive(df)
-
 
         return returnUrl
 
@@ -67,6 +66,7 @@ def fun_facets_overview(train_data):
 
     html_name = "/static/Overview_html/" + uuidStr + ".html"
     return html_name
+
 
 def fun_facets_dive(train_data):
     jsonstr = train_data.to_json(orient='records')

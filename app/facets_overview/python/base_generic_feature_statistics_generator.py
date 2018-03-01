@@ -260,9 +260,15 @@ class BaseGenericFeatureStatisticsGenerator(object):
             if has_data:
               strs = []
               for item in value['vals']:
-                strs.append(item if hasattr(item, '__len__') else
-                  item.encode('utf-8'))
 
+                #strs.append(item if hasattr(item, '__len__') else
+                #  item.encode('utf-8'))
+                if not hasattr(item, '__len__'):
+                    if hasattr(item, 'encode'):
+                      item.encode('utf-8')
+                    else:
+                        item = str(item)
+                strs.append(item)
               featstats.avg_length = np.mean(np.vectorize(len)(strs))
               vals, counts = np.unique(strs, return_counts=True)
               featstats.unique = len(vals)
