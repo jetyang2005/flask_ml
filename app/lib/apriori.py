@@ -114,7 +114,12 @@ def runApriori(data_iter, minSupport, minConfidence):
     return toRetItems, toRetRules
 
 
+
+
+
 def printResults(items, rules):
+
+    """print result"""
 
     returnStr="from::to::score"
 
