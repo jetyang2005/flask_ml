@@ -13,8 +13,8 @@ class Excel(object):
         try:
             data = xlrd.open_workbook(file)
             return data
-        except Exception, e:
-            print str(e)
+        except Exception as e:
+            print (str(e))
 
     #根据索引获取Excel表格中的数据   参数:file：Excel文件路径     colnameindex：表头列名所在行的所以  ，by_index：表的索引
     def excel_table_byindex(self, file= 'file.xls',colnameindex=0,by_index=0):
@@ -54,7 +54,7 @@ class Excel(object):
 excel_util =  Excel()
 tables = excel_util.excel_table_byindex('/Users/yangwm/log/exceldata/histgram.xls')
 for row in tables:
-    print row
+    print (row)
 
 # tables = excel_util.excel_table_byname('/Users/yangwm/log/exceldata/On_Time_On_Time_Performance_1987_10/On_Time_On_Time_Performance_1987_10.csv')
 # for row in tables:

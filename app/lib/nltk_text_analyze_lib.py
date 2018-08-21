@@ -171,7 +171,7 @@ def count_vectorizer(textArray):
     word = vectorizer.get_feature_names()
 
     # 查看词频结果
-    print X.toarray()
+    print (X.toarray())
     return X.toarray()
 
 

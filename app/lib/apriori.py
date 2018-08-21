@@ -101,16 +101,17 @@ def runApriori(data_iter, minSupport, minConfidence):
                            for item in value])
 
     toRetRules = []
-    for key, value in largeSet.items()[1:]:
-        for item in value:
-            _subsets = map(frozenset, [x for x in subsets(item)])
-            for element in _subsets:
-                remain = item.difference(element)
-                if len(remain) > 0:
-                    confidence = getSupport(item)/getSupport(element)
-                    if confidence >= minConfidence:
-                        toRetRules.append(((tuple(element), tuple(remain)),
-                                           confidence))
+    if largeSet.__len__()!=0:
+        for key, value in largeSet.items()[1:]:
+            for item in value:
+                _subsets = map(frozenset, [x for x in subsets(item)])
+                for element in _subsets:
+                    remain = item.difference(element)
+                    if len(remain) > 0:
+                        confidence = getSupport(item)/getSupport(element)
+                        if confidence >= minConfidence:
+                            toRetRules.append(((tuple(element), tuple(remain)),
+                                               confidence))
     return toRetItems, toRetRules
 
 
@@ -131,11 +132,11 @@ def printResults(items, rules):
     #         returnStr = returnStr+";;"+"频繁项"+"::"+str(item)+"::"+str(support)
     #     print "item: %s , %.3f" % (str(item), support)
     # print "\n------------------------ RULES:"
-    for rule, confidence in sorted(rules, key=lambda (rule, confidence): confidence):
+    for rule, confidence in sorted(rules, key=lambda rule_confidence: rule_confidence[1]):
         pre, post = rule
 
         returnStr = returnStr + ";;" + str(pre)+"::" + str(post)+ "::" + str(confidence)
-        print "Rule: %s ==> %s , %.3f" % (str(pre), str(post), confidence)
+        print ("Rule: %s ==> %s , %.3f" % (str(pre), str(post), confidence))
 
     return returnStr
 
@@ -194,7 +195,7 @@ if __name__ == "__main__":
     elif options.input is not None:
             inFile = dataFromFile(options.input)
     else:
-            print 'No dataset filename specified, system with exit\n'
+            print ('No dataset filename specified, system with exit\n')
             sys.exit('System will exit')
 
     minSupport = options.minS

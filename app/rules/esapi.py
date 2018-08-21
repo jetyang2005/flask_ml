@@ -17,7 +17,7 @@ def init_api(app, es_util):
         auth = Auth()
         result = auth.identify(request)
         if (result['status']):
-          print 'hello'
+          print ('hello')
 
           es_index_name = "1007-linux-system-cpu*"
           es_type_name = "linux-system-cpu"
@@ -42,7 +42,7 @@ def init_api(app, es_util):
               # print(hit["_source"].values())
 
           result = json.dumps(result_list, indent=4)
-          print result
+          print (result)
           return result
 
         else:

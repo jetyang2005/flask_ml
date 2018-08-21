@@ -4,9 +4,9 @@ import os
 os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.ZHS16GBK'
 # os.environ['NLS_LANG'] = 'SIMPLIFIED CHINESE_CHINA.UTF8'
 import sys
+import importlib
+importlib.reload(sys)
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 import cx_Oracle
 from sqlalchemy import Column, String, create_engine
 import pandas as pd
@@ -115,7 +115,7 @@ class cxOracle():
                 fields.append(field_val)
             #print fields
             records.append(tuple(fields))
-        print "数据总条数:", len(records)
+        print ("数据总条数:", len(records))
         # Prepare the records into a single DataFrame
         df = None
         if records:

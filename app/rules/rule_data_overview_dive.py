@@ -8,23 +8,30 @@ from app.facets_overview.python.generic_feature_statistics_generator import Gene
 
 from app.rules.facets import facets_utils
 
+from app.lib import sqliteutils
 
 def init_api(app, es_util):
     @app.route('/showOverviewAndDive', methods=['POST'])
     def showOverviewAndDive():
         parmStr = request.get_data()
-        print "请求json字符串：", parmStr
-        paramDict = json.loads(parmStr)
-        datasourceId = paramDict['datasourceId']
-        datasetId = paramDict['datasetId']
-        beginTime = paramDict['beginTime']
-        endTime = paramDict['endTime']
-        queryType = paramDict['queryType']
-        time_stampFlag = paramDict['time_stampFlag']
+        print ("请求json字符串：", parmStr)
+        #paramDict = json.loads(parmStr.decode('utf-8'))
+        #datasourceId = paramDict['datasourceId']
+        #datasetId = paramDict['datasetId']
+        #beginTime = paramDict['beginTime']
+        #endTime = paramDict['endTime']
+        #queryType = paramDict['queryType']
+        queryType = 'overview'
+        #time_stampFlag = paramDict['time_stampFlag']
 
         returnUrl = "NULL"
 
-        df = facets_utils.configanalysis(datasourceId, datasetId, beginTime, endTime, time_stampFlag)
+        #df = facets_utils.configanalysis(datasourceId, datasetId, beginTime, endTime, time_stampFlag)
+
+        db_path='E://气象局//rdata.db'
+        #exectCmd= "select FAULT_ID,PK_ID,MALFUNC_CODE from FAULT_REC"
+        exectCmd = "select * from FAULT_REC"
+        df=sqliteutils.sqlliteToDF(db_path,exectCmd)
 
         if df is None:
             return returnUrl

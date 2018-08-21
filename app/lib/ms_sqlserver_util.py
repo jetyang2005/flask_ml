@@ -16,9 +16,8 @@ import logging
 import sys
 import time
 import pandas as pd
-
-reload(sys)
-sys.setdefaultencoding( "utf-8" )
+import importlib
+importlib.reload(sys)
 
 
 class MSSQL:

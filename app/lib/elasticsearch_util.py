@@ -10,9 +10,10 @@ import sys
 import json
 import app.config as config
 
+import importlib
+importlib.reload(sys)
 
-reload(sys)
-sys.setdefaultencoding( "utf-8" )
+
 
 class Elasticsearch_Util():
 
@@ -57,7 +58,7 @@ class Elasticsearch_Util():
         res = self.es.search(index=index_name, doc_type=type_name, body=querybody,filter_path=[result_filter])
 
         # print(" res value is : "+str(res).decode("unicode_escape").encode("utf8"))
-        print json.dumps(res, indent=4)
+        print (json.dumps(res, indent=4))
         # self.elastalert_logger.info(str(res).decode("unicode_escape").encode("utf8"))
 
     def query_index(self, index_name, querybody):
@@ -71,6 +72,61 @@ class Elasticsearch_Util():
 
         print(index_name +" Got %d Hits: " % res.get("hits").get("total"))
 
+    def getMoreDataFromES(self, index, doc_type, source_include, size):
+        querybody = {
+            "query": {
+                "match_all": {}
+            },
+            "_source": {
+                "includes": source_include,
+                "excludes": []
+            }
+        }
+        # Initialize the scroll
+        print("Initialize the scroll")
+
+        page = self.es.search(
+            index=index,
+            doc_type=doc_type,
+            scroll='2m',
+            size=size,
+            body=querybody)
+        sid = page['_scroll_id']
+        scroll_size = page['hits']['total']
+
+        print("sid: " + str(sid))
+        print("scroll size: " + str(scroll_size))
+        records = []
+        for doc in page['hits']['hits']:
+            source = doc['_source']
+            # source["id"] = doc['_id']
+            # source["index"] = doc['_index']
+            #            if doc['_source']['logBody']!=None and doc['_source']['logBody']!="":
+            records.append(source)
+
+        df = None
+        # Start scrolling
+        while (scroll_size > 0):
+            print("Scrolling...")
+            page = self.es.scroll(scroll_id=sid, scroll='2m')
+            # Update the scroll ID
+            sid = page['_scroll_id']
+            print("sid: " + str(sid))
+            # Get the number of results that we returned in the last scroll
+            scroll_size = len(page['hits']['hits'])
+
+            for doc in page['hits']['hits']:
+                source = doc['_source']
+                #source["id"] = doc['_id']
+                #source["index"] = doc['_index']
+                #            if doc['_source']['logBody']!=None and doc['_source']['logBody']!="":
+                records.append(source)
+
+            print("scroll size: " + str(scroll_size))
+        if records:
+            df = pd.DataFrame(records)
+            # Do something with the obtained page
+        return df
 
     def es_read_scroll_scan(self, index, doc_type, querybody,size):
         # Initialize the scroll
@@ -85,13 +141,13 @@ class Elasticsearch_Util():
 
         # Start scrolling
         while (scroll_size > 0):
-            print "Scrolling..."
+            print ("Scrolling...")
             page = self.es.scroll(scroll_id=sid, scroll='2m')
             # Update the scroll ID
             sid = page['_scroll_id']
             # Get the number of results that we returned in the last scroll
             scroll_size = len(page['hits']['hits'])
-            print "scroll size: " + str(scroll_size)
+            print ("scroll size: " + str(scroll_size))
             # Do something with the obtained page
 
     def es_read_querybody(self, index, doc_type, querybody):
@@ -114,7 +170,7 @@ class Elasticsearch_Util():
             if '_source' in record:
                 #print record['_source']
                 records.append(record['_source'])
-        print "es hit total:",len(records)
+        print ("es hit total:",len(records))
         # Prepare the records into a single DataFrame
         df = None
         if records:
@@ -184,7 +240,8 @@ class Elasticsearch_Util():
 
     # 批量插入数据
     def insert_bulk_data(self, esdatas):
-        self.elastalert_logger.info(str(esdatas).decode("unicode_escape").encode("utf8"))
+        self.elastalert_logger.info(str(esdatas))
+        #.decode("unicode_escape").encode("utf8")
         helpers.bulk(self.es, esdatas)
 
     # 删除索引

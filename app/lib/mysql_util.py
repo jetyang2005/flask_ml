@@ -1,12 +1,12 @@
 # -*- coding: UTF-8 -*-
 # 安装 MYSQL DB for python
-import MySQLdb as mdb
+import pymysql as mdb
 import pandas as pd
 import sys
 import app.config as config
+import importlib
+importlib.reload(sys)
 
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 
 class Mysql_Util():
