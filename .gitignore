@@ -107,3 +107,11 @@ venv.bak/
 
 # mypy
 .mypy_cache/
+
+# modelspkl
+app/rules/modelspkl
+
+
+.git/
+
+elastticsearch.log

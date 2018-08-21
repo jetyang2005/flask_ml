@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-import MySQLdb as mdb
+import pymysql as mdb
 import pandas as pd
 import numpy as np
 import json
@@ -83,7 +83,7 @@ def jdbcconfiganalysis(parmStr, dataset_df, beginTime, endTime, time_stampFlag):
     # parmStr.decode('utf-8').replace("'", "\"")
     # paramDict = json.loads(resultPart2)
     # print eval(paramDict)
-    print "jdbc:", paramDict
+    print ("jdbc:", paramDict)
     type = paramDict["type"]
     jdbcurl = paramDict["jdbcurl"]
     driver = paramDict["driver"]
@@ -116,7 +116,7 @@ def mysqlconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, endT
     sqlstr = '%s' % (sql)
     if time_stampFlag is True:
         sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
-    print sqlstr
+    print (sqlstr)
     df = mysql_select(host=host, user=username, passwd=password, db=db, sqlstr=sqlstr)
 
     # sql_test = "select province,city,monthly_plan_value from electricitysales"
@@ -140,7 +140,7 @@ def sqlserverconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, 
     sqlstr = '%s' % (sql)
     if time_stampFlag is True:
         sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
-    print sqlstr
+    print (sqlstr)
     df = sqlserver_select(host=host, user=username, pwd=password, db=db, sqlstr=sqlstr)
     return df
 
@@ -177,7 +177,7 @@ def oracleconfiganalysis(jdbcurl, username, password, dataset_df, beginTime, end
     sqlstr = '%s' % (sql)
     if time_stampFlag is True:
         sqlstr = '%s%s%s' % (sqlhead, sql, sqlend)
-    print sqlstr
+    print (sqlstr)
 
     # sql2 = "select ID,ORG_ID from T_MDL_HIS_PROPERTYTAX where tax_year>'2016' and rownum<= 10"
     df = oracle_select(user=username, passwd=password, tns=tns, sqlstr=sqlstr)
@@ -194,7 +194,7 @@ def datasetconfigTosql(dataset_df):
     for indexs in dataset_df.index:
         data_json = dataset_df.loc[indexs, "data_json"]
     paramDict_dataset = parse_js(data_json)
-    print paramDict_dataset["query"]
+    print (paramDict_dataset["query"])
     sql = paramDict_dataset["query"]["sql"].replace("\n", " ").strip()
     # print sql
     if sql.endswith(";"):
@@ -206,7 +206,7 @@ def datasetconfigTosql(dataset_df):
 def linkESDatacconfiganalysis(parmStr, beginTime, endTime):
     es_util = Elasticsearch_Util()
     paramDict = parse_js(parmStr)
-    print "linkESData:", paramDict
+    print ("linkESData:", paramDict)
     syscode = paramDict["syscode"]
     filename = paramDict["filename"]
 
@@ -268,7 +268,7 @@ def mysql_select(host, user, passwd, db, sqlstr):
         for record in rows:
             #print record
             records.append(record)
-        print "数据总条数:", len(records)
+        print ("数据总条数:", len(records))
         # Prepare the records into a single DataFrame
         df = None
         if records:
@@ -293,9 +293,9 @@ def sqlserver_select(host, user, passwd, db, sqlstr):
     rows = ms.ExecQuery(sqlstr)
     records = []
     for record in rows:
-        print record
+        print (record)
         records.append(record)
-    print "数据总条数:", len(records)
+    print ("数据总条数:", len(records))
     # Prepare the records into a single DataFrame
     df = None
     if records:

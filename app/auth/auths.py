@@ -48,7 +48,7 @@ class Auth():
             # 取消过期时间验证audience='AUDIENCE_WEB', algorithms=['HS512'],
             lens = len(config.SECRET_KEY)
             lenx = lens - (lens % 4 if lens % 4 else 4)
-            secret = base64.decodestring(config.SECRET_KEY[:lenx])
+            secret = base64.decodestring(bytes(config.SECRET_KEY[:lenx],'gb2312'))
             # secret = base64.decodestring(config.SECRET_KEY)
 
             payload = jwt.decode(auth_token, secret,  options={'verify_exp': False})

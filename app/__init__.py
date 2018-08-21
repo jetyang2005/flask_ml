@@ -17,7 +17,7 @@ def create_app(config_filename):
     app = Flask(__name__)
     app.config.from_object(config_filename)
     es_util = Elasticsearch_Util()
-    print '当前路径',os.getcwd()
+    print ('当前路径',os.getcwd())
 
     @app.after_request
     def after_request(response):
@@ -49,7 +49,7 @@ def create_app(config_filename):
     init_api(app, es_util)
 
     # # 注册日志异常检测API接口
-    # from app.rules.nlp_error_predict import init_api
-    # init_api(app, es_util)
+    #from app.rules.nlp_error_predict import init_api
+    #init_api(app, es_util)
 
     return app

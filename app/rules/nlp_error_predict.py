@@ -152,8 +152,8 @@ def init_api(app, es_util):
 
             # if test_datas != None:
             test_feature_datas = tf_transformer.transform(test_datas)
-            print tf_transformer.get_feature_names()
-            print test_feature_datas.toarray()
+            print (tf_transformer.get_feature_names())
+            print (test_feature_datas.toarray())
 
             wordlist = tf_transformer.get_feature_names()  # 获取词袋模型中的所有词
             # tf-idf矩阵 元素a[i][j]表示j词在i类文本中的tf-idf权重
@@ -161,13 +161,13 @@ def init_api(app, es_util):
             # 打印每类文本的tf-idf词语权重，第一个for遍历所有文本，第二个for便利某一类文本下的词语权重
             sortweight=[]
             for i in range(len(weightlist)):
-                print "-------这里输出第", i, "类文本的词语tf-idf权重------"
+                print ("-------这里输出第", i, "类文本的词语tf-idf权重------")
                 for j in range(len(wordlist)):
                     if weightlist[i][j] > 0:
                         sortweight.append((weightlist[i][j],wordlist[j]))
                         #print wordlist[j], weightlist[i][j]
             for wordweight in sorted(sortweight, reverse=True):
-                print wordweight
+                print (wordweight)
             # 进行预测
             pred = model.predict(test_feature_datas)
             result = le.inverse_transform(pred)

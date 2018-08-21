@@ -27,12 +27,12 @@ class CSVUitl(object):
                     if not k: row.pop(k)
 
                 row['@timestamp']=row['FlightDate']+' '+row['CRSDepTime'][0:2]+':'+row['CRSDepTime'][2:4]+':00'+' 000'
-                print row['@timestamp']
+                print (row['@timestamp'])
                 #获取字典中的元素数量
                 # print len(row)linkdata__1007__node__airlinedata
                 # print json.dumps(row)
                 message_json = json.dumps(row)
-                print message_json
+                print (message_json)
                 kafka_util.produce_kafka_data('linkdata__1007__node__airlinedata',message_json)
 
         # kafka_util.colse_producer()
